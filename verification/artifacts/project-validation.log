@@ -1,0 +1,16 @@
+MPUX Pro 项目自检
+====================================================================
+[OK  ] Python 语法：全部脚本与测试可编译
+[OK  ] 知识库验证：rows={'product': 31, 'style': 22, 'color': 24, 'layout': 27, 'component': 33, 'ux': 36, 'mini-program': 34, 'anti-pattern': 40, 'typography': 12, 'reasoning': 16, 'stack:wechat-native': 26, 'stack:uni-app': 23, 'stack:taro': 23} errors=0
+[OK  ] Skill 结构验证：errors=0 warnings=0
+[OK  ] CLI --help：全部 CLI 可用
+[OK  ] 检索冒烟：top=comp-product-card
+[OK  ] 设计系统生成与防覆盖：generated=True no_clobber=True
+[OK  ] 静态审查冒烟：stack=wechat-native P0=3
+[OK  ] 开发者工具模拟器验收证据：status=passed checks=24 screenshots=9
+[OK  ] JSON Schema：全部可解析
+[OK  ] 文档脚本命令：文档中识别到 9 个脚本命令
+====================================================================
+数据警告：
+  - 有 72 条平台/技术栈规则需要按目标基础库或真机复核，输出时必须保留核验状态
+结果：通过

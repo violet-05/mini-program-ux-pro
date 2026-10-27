@@ -1,0 +1,1113 @@
+{
+  "schema_version": "1.0.0",
+  "generator": {
+    "name": "mini-program-ux-pro",
+    "version": "1.0.0"
+  },
+  "generated_at": "2026-10-27T10:51:12+00:00",
+  "project": {
+    "name": "音乐播放器",
+    "slug": "prod-music"
+  },
+  "stack": {
+    "id": "wechat-native",
+    "label": "微信原生小程序",
+    "verification_limit": "框架差异与平台能力需按项目依赖、基础库和真机复核。"
+  },
+  "product": {
+    "id": "prod-music",
+    "name": "音乐播放器",
+    "match": "exact",
+    "confidence": 1.0,
+    "summary": "以内容发现、持续播放、收藏与歌单为核心，播放状态需要跨页面保持。",
+    "target_users": "通勤、学习、运动、睡前等场景的听众和播客用户。",
+    "scenarios": "通勤听歌、发现新内容、收藏歌单、查看歌词与继续播放。",
+    "core_tasks": "继续播放、发现新歌、搜索、收藏、查看歌词/队列。",
+    "home_structure": "问候与最近播放→继续收听→每日推荐/榜单→歌单与电台→迷你播放器",
+    "nav_pattern": "底部 TabBar：首页/发现/音乐库/我的；全屏播放页为独立层级，不重复 TabBar",
+    "information_density": "中低",
+    "avoid": "每张卡都堆渐变；播放控制过小；切页丢失播放；深色下歌词对比不足；无限动画干扰。",
+    "reasoning_ids": [
+      "reason-content"
+    ]
+  },
+  "style": {
+    "id": "style-content-first",
+    "name": "内容优先型",
+    "name_en": "Content-first",
+    "selection": "recommended",
+    "why": "由产品类型的推荐风格与设计推理规则推导。",
+    "keywords": "内容|阅读|信息|克制|content first|reading|focus|clarity",
+    "visual_traits": "标题、封面、摘要、作者与时间的层级经过设计；装饰让位于内容；阅读宽度和行高优先。",
+    "typography_rules": "正文 30–34rpx；行高 1.65–1.85；标题最多三行；长文提供字号调节或至少保证系统缩放。",
+    "component_traits": "无边框列表；卡片仅用于需要整体点击的内容；底部操作不遮挡正文；进度清晰。",
+    "motion_strategy": "120–200ms；目录和操作面板滑入；滚动动效不干扰阅读；自动播放必须可关闭。",
+    "avoid_scenarios": "需要强品牌氛围的营销首页、游戏、商品促销主会场。",
+    "common_errors": "所有内容都卡片化；正文过窄或过宽；标题和摘要字号接近；无限滚动无返回位置。",
+    "combination_notes": "适合与编辑式、极简或现代东方组合；数据密集型内容应提供表格和筛选而非纯信息流。"
+  },
+  "palette": {
+    "id": "palette-music-night",
+    "name": "音乐夜色",
+    "mode": "dark",
+    "usage": "沉浸播放、封面、歌词和夜间浏览。",
+    "contrast_notes": "深色底上的正文对比充足；荧光品牌色不用于长文本；播放进度与错误状态需要额外图形线索。",
+    "colors": {
+      "background": "#0D0F12",
+      "surface": "#171A1F",
+      "surface_alt": "#161915",
+      "text_primary": "#F5F1E8",
+      "text_secondary": "#B2B6BE",
+      "brand": "#D7E94C",
+      "on_brand": "#111111",
+      "brand_soft": "#252919",
+      "accent": "#8B7CFF",
+      "on_accent": "#111111",
+      "border": "#2C3037",
+      "divider": "#24282E",
+      "success": "#5BD98A",
+      "warning": "#F0B429",
+      "error": "#FF7D7D",
+      "on_error": "#111111",
+      "link": "#D7E94C",
+      "disabled": "#4C4E53",
+      "overlay": "rgba(12, 14, 18, 0.48)"
+    },
+    "contrast_checks": [
+      {
+        "fg": "#F5F1E8",
+        "bg": "#0D0F12",
+        "label": "主文字/背景",
+        "ratio": 17.03,
+        "threshold": 4.5,
+        "passes": true
+      },
+      {
+        "fg": "#F5F1E8",
+        "bg": "#171A1F",
+        "label": "主文字/表面",
+        "ratio": 15.47,
+        "threshold": 4.5,
+        "passes": true
+      },
+      {
+        "fg": "#B2B6BE",
+        "bg": "#0D0F12",
+        "label": "次级文字/背景",
+        "ratio": 9.44,
+        "threshold": 4.5,
+        "passes": true
+      },
+      {
+        "fg": "#B2B6BE",
+        "bg": "#171A1F",
+        "label": "次级文字/表面",
+        "ratio": 8.58,
+        "threshold": 4.5,
+        "passes": true
+      },
+      {
+        "fg": "#D7E94C",
+        "bg": "#0D0F12",
+        "label": "链接/背景",
+        "ratio": 14.3,
+        "threshold": 4.5,
+        "passes": true
+      },
+      {
+        "fg": "#111111",
+        "bg": "#D7E94C",
+        "label": "品牌按钮文字/品牌色",
+        "ratio": 14.07,
+        "threshold": 4.5,
+        "passes": true
+      },
+      {
+        "fg": "#111111",
+        "bg": "#FF7D7D",
+        "label": "错误按钮文字/错误色",
+        "ratio": 7.63,
+        "threshold": 4.5,
+        "passes": true
+      }
+    ]
+  },
+  "typography": {
+    "id": "type-reading-song",
+    "name": "长文阅读排版",
+    "heading_stack": "-apple-system,BlinkMacSystemFont,PingFang SC,Hiragino Sans GB,Microsoft YaHei,sans-serif",
+    "body_stack": "-apple-system,BlinkMacSystemFont,PingFang SC,Hiragino Sans GB,Microsoft YaHei,sans-serif",
+    "numeric_stack": "SF Pro Display,Helvetica Neue,Arial,sans-serif",
+    "scale_rationale": "阅读正文优先，标题略大；行高比默认更大；每屏保留稳定节奏。",
+    "line_height_rules": "正文 1.75–1.9；标题 1.3–1.45；注释 1.5。",
+    "mini_program_notes": "正文建议 30–34rpx；尊重系统字号；长文提供字号调节或允许换行；底部栏不覆盖最后一段。"
+  },
+  "tokens": {
+    "colors": {
+      "background": "#0D0F12",
+      "surface": "#171A1F",
+      "surface_alt": "#161915",
+      "text_primary": "#F5F1E8",
+      "text_secondary": "#B2B6BE",
+      "brand": "#D7E94C",
+      "on_brand": "#111111",
+      "brand_soft": "#252919",
+      "accent": "#8B7CFF",
+      "on_accent": "#111111",
+      "border": "#2C3037",
+      "divider": "#24282E",
+      "success": "#5BD98A",
+      "warning": "#F0B429",
+      "error": "#FF7D7D",
+      "on_error": "#111111",
+      "link": "#D7E94C",
+      "disabled": "#4C4E53",
+      "overlay": "rgba(12, 14, 18, 0.48)"
+    },
+    "typography": {
+      "font_family_heading": "-apple-system,BlinkMacSystemFont,PingFang SC,Hiragino Sans GB,Microsoft YaHei,sans-serif",
+      "font_family_body": "-apple-system,BlinkMacSystemFont,PingFang SC,Hiragino Sans GB,Microsoft YaHei,sans-serif",
+      "font_family_numeric": "SF Pro Display,Helvetica Neue,Arial,sans-serif",
+      "font_weight_regular": 400,
+      "font_weight_medium": 500,
+      "font_weight_semibold": 600,
+      "font_weight_bold": 700,
+      "scale": {
+        "caption": "24rpx",
+        "meta": "28rpx",
+        "body": "32rpx",
+        "body_lg": "36rpx",
+        "title": "44rpx",
+        "display": "52rpx"
+      },
+      "line_height": {
+        "body": 1.82,
+        "title": 1.47,
+        "numeric": 1.15
+      },
+      "line_height_note": "正文 1.75–1.9；标题 1.3–1.45；注释 1.5。",
+      "mini_program_note": "正文建议 30–34rpx；尊重系统字号；长文提供字号调节或允许换行；底部栏不覆盖最后一段。"
+    },
+    "spacing": {
+      "scale": {
+        "space_1": "8rpx",
+        "space_2": "16rpx",
+        "space_3": "24rpx",
+        "space_4": "32rpx",
+        "space_5": "48rpx",
+        "space_6": "64rpx",
+        "space_7": "96rpx"
+      },
+      "page_gutter": "32rpx",
+      "section_gap": "64rpx",
+      "card_gap": "24rpx",
+      "density": "低",
+      "content_max_width": "1120rpx"
+    },
+    "radius": {
+      "radius_sm": "0rpx",
+      "radius_md": "6rpx",
+      "radius_lg": "10rpx",
+      "radius_pill": "999rpx"
+    },
+    "shadows": {
+      "none": "none",
+      "card": "none",
+      "raised": "0 12rpx 32rpx rgba(0, 0, 0, 0.45)"
+    },
+    "motion": {
+      "fast": "120ms",
+      "normal": "180ms",
+      "slow": "240ms",
+      "easing": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+      "policy": "动效只表达状态和空间关系；避免无限循环动画；低端设备与系统减少动效时降级。"
+    },
+    "sizes": {
+      "touch_target": "88rpx",
+      "button_height": "88rpx",
+      "input_height": "88rpx",
+      "list_row_min_height": "104rpx",
+      "icon": "40rpx",
+      "tabbar_height": "100rpx",
+      "navigation_content_height": "88rpx"
+    },
+    "safe_area": {
+      "bottom_css": "env(safe-area-inset-bottom)",
+      "bottom_padding_formula": "calc(24rpx + env(safe-area-inset-bottom))",
+      "note": "固定底栏必须为内容设置等高占位；具体支持需在目标基础库和真机验证。"
+    },
+    "provenance": {
+      "colors": "palette-music-night",
+      "style_profile": "style-content-first",
+      "density": "low",
+      "typography": "type-reading-song",
+      "note": "颜色、字号和布局引用知识库；圆角、阴影、动效与控件尺寸由版本化的设计引擎规则派生。"
+    }
+  },
+  "token_implementation": {
+    "file": "tokens.wxss",
+    "language": "wxss",
+    "note": "WXSS 自定义属性支持取决于目标基础库；若旧版本不支持，使用 MASTER.json 中的字面值或编译期样式，不要假设所有小程序环境都有 CSS 变量。",
+    "primary": "为组件提供字面值 token；tokens.wxss 仅作为可验证的变量层。"
+  },
+  "layouts": [
+    {
+      "id": "layout-home",
+      "page_type": "首页",
+      "goal": "让用户在首屏识别产品价值并进入最重要的一个任务，同时保留必要的探索入口。",
+      "hierarchy": "品牌/定位 → 当前状态或核心入口 → 推荐内容 → 次级服务 → 全局导航",
+      "primary_regions": "身份与上下文区；一个主任务区；动态或推荐区；服务入口",
+      "secondary_regions": "公告、活动、说明和辅助内容",
+      "navigation": "原生或自定义导航；底部 TabBar 仅在存在 2–5 个稳定主区域时使用",
+      "components": [
+        "comp-nav-native",
+        "comp-nav-custom",
+        "comp-search-bar",
+        "comp-tabbar",
+        "comp-skeleton",
+        "comp-empty",
+        "comp-error"
+      ],
+      "action_order": "先识别身份/位置→完成主任务→浏览推荐→进入次级服务",
+      "information_density": "中",
+      "mobile_notes": "首屏不放多个同等权重的横幅；主任务在 667px 高度设备上尽量完整可见；顶部与安全区一起计算。",
+      "common_errors": "固定模板“搜索框+轮播+四宫格+三卡片”；所有模块都加阴影；TabBar 超过 5 项；首屏堆叠多个弹窗。",
+      "override_file": "pages/home.md"
+    },
+    {
+      "id": "layout-music-player",
+      "page_type": "音乐播放器",
+      "goal": "让封面、播放状态和主控操作形成稳定的持续播放体验。",
+      "hierarchy": "封面/曲目信息 → 进度 → 主控 → 队列/歌词/收藏",
+      "primary_regions": "封面；曲名/歌手；进度；播放控制；收藏/分享；队列入口",
+      "secondary_regions": "歌词、评论、音质、设备",
+      "navigation": "全屏播放页；可收起为全局迷你播放器；导航不覆盖主控",
+      "components": [
+        "comp-image-preview",
+        "comp-bottom-action",
+        "comp-share",
+        "comp-empty",
+        "comp-error"
+      ],
+      "action_order": "识别曲目→播放/暂停→拖动进度→切换/收藏→查看队列",
+      "information_density": "中低",
+      "mobile_notes": "主控触控区不小于 88rpx；进度条拖动有预览；锁屏/中断后状态可恢复；深色下歌词对比足够。",
+      "common_errors": "主控按钮太小；持续播放状态丢失；只有彩色图标没有可访问标签；歌词遮挡控制。",
+      "override_file": "pages/music-player.md"
+    },
+    {
+      "id": "layout-search",
+      "page_type": "搜索页",
+      "goal": "帮助用户表达意图，并在输入前后提供可执行的检索辅助。",
+      "hierarchy": "搜索输入 → 历史/热搜/建议 → 分类范围",
+      "primary_regions": "输入框；取消；清空；历史；建议；热门词",
+      "secondary_regions": "搜索说明、范围切换",
+      "navigation": "自定义顶部区域时避开胶囊按钮与状态栏；返回必须可预期",
+      "components": [
+        "comp-search-bar",
+        "comp-search-suggest",
+        "comp-tag",
+        "comp-empty"
+      ],
+      "action_order": "输入→选择建议或提交→进入结果",
+      "information_density": "中低",
+      "mobile_notes": "键盘弹起后仍能看到至少 3 条建议；输入框 autofocus 需谨慎，避免一进页面就遮挡。",
+      "common_errors": "搜索框过矮；只提供 placeholder 没有标签；历史无法清除；点击热词无反馈。",
+      "override_file": "pages/search.md"
+    },
+    {
+      "id": "layout-search-results",
+      "page_type": "搜索结果页",
+      "goal": "让用户判断结果是否相关，并快速比较、筛选和打开结果。",
+      "hierarchy": "查询词/范围 → 结果数量 → 筛选排序 → 结果列表 → 加载更多",
+      "primary_regions": "搜索词回显；筛选条；结果列表；结果状态",
+      "secondary_regions": "相关搜索、纠错建议",
+      "navigation": "顶部保留搜索入口；可返回上一页",
+      "components": [
+        "comp-search-bar",
+        "comp-filter-panel",
+        "comp-product-list",
+        "comp-empty",
+        "comp-error",
+        "comp-load-more"
+      ],
+      "action_order": "确认查询→筛选→比较→打开→返回保持位置",
+      "information_density": "中高",
+      "mobile_notes": "筛选面板不应完全遮住结果上下文；滚动位置在返回时保留；无结果要提供纠错和范围调整。",
+      "common_errors": "搜索词不可见；结果为空只有“暂无数据”；筛选关闭后条件丢失。",
+      "override_file": "pages/search-results.md"
+    },
+    {
+      "id": "layout-profile",
+      "page_type": "个人中心",
+      "goal": "汇聚身份、资产、订单与设置，但不成为功能广告墙。",
+      "hierarchy": "身份 → 关键资产/订单状态 → 常用服务 → 设置",
+      "primary_regions": "头像/昵称；会员或积分；订单快捷状态；服务列表；退出/设置",
+      "secondary_regions": "活动、推荐、帮助",
+      "navigation": "TabBar 的一项；登录前后结构保持稳定",
+      "components": [
+        "comp-avatar",
+        "comp-order-status",
+        "comp-tag",
+        "comp-steps",
+        "comp-modal",
+        "comp-toast"
+      ],
+      "action_order": "确认身份→查看关键状态→进入服务→管理设置",
+      "information_density": "中低",
+      "mobile_notes": "未登录状态展示价值而非空白；用户信息占位要稳定；常用服务最多两层。",
+      "common_errors": "个人中心堆满运营模块；关键订单状态需要滚动；退出登录无确认。",
+      "override_file": "pages/profile.md"
+    }
+  ],
+  "pages": [
+    {
+      "layout_id": "layout-home",
+      "page_type": "首页",
+      "file": "pages/home.md"
+    },
+    {
+      "layout_id": "layout-music-player",
+      "page_type": "音乐播放器",
+      "file": "pages/music-player.md"
+    },
+    {
+      "layout_id": "layout-profile",
+      "page_type": "个人中心",
+      "file": "pages/profile.md"
+    }
+  ],
+  "components": [
+    {
+      "id": "comp-search-bar",
+      "name": "搜索框",
+      "use_cases": "列表、分类、首页的检索入口或搜索页输入。",
+      "visual_rules": "高度不小于 72rpx，常用 80–88rpx；有清晰边界；placeholder 只作提示，不作为唯一标签。",
+      "interaction_rules": "点击进入搜索页或聚焦输入；清空按钮命中区足够大；确认键显示“搜索”；提交有 loading。",
+      "touch_target": "输入区高度至少 80rpx；清空/取消等图标按钮至少 88rpx 热区。",
+      "states": "空闲、聚焦、有内容、搜索中、禁用",
+      "accessibility": "输入有可访问名称；清空按钮有文案或 aria-label；错误提示靠近输入。",
+      "native_implementation": "原生 input 设置 confirm-type='search'、placeholder、value；避免用 view 模拟输入框；处理键盘遮挡。",
+      "common_errors": "搜索框太矮；清空按钮难点；按键盘搜索无响应；输入时页面被键盘遮挡。"
+    },
+    {
+      "id": "comp-image-preview",
+      "name": "图片预览",
+      "use_cases": "商品图、内容配图、凭证和头像查看。",
+      "visual_rules": "缩略图统一比例；多图明确数量；加载失败有占位；点击不改变列表布局。",
+      "interaction_rules": "点击打开预览；支持滑动和关闭；图片失败可重试；避免预览遮挡关键操作。",
+      "touch_target": "缩略图可点区域至少 88rpx；预览关闭由平台提供。",
+      "states": "加载中、成功、失败、预览中、多图",
+      "accessibility": "图片有替代文本；重要文字不要只存在于图片；预览有可关闭方式。",
+      "native_implementation": "image mode 按用途选择；wx.previewImage 打开大图；本地占位图；长列表 lazy-load。",
+      "common_errors": "把关键信息做成图片；缩略图变形；预览索引错误；失败没有占位。"
+    },
+    {
+      "id": "comp-avatar",
+      "name": "用户头像",
+      "use_cases": "用户身份、评论、聊天和群组。",
+      "visual_rules": "圆形或不与品牌冲突的统一形状；默认头像有姓名首字或品牌占位；图片比例 1:1。",
+      "interaction_rules": "点击可选头像/查看资料；加载失败回退；无权限时显示默认。",
+      "touch_target": "头像本身可点区域至少 88rpx，视觉可小。",
+      "states": "加载、成功、失败、默认、在线状态",
+      "accessibility": "头像有用户可识别名称；在线状态不只靠点；图片失败仍有替代。",
+      "native_implementation": "button open-type='chooseAvatar' 用于获取头像；image 失败绑定 binderror；避免盗用默认头像。",
+      "common_errors": "默认头像风格不一；头像图片变形；点击无反应；在线状态只靠绿点。"
+    },
+    {
+      "id": "comp-bottom-action",
+      "name": "底部固定操作栏",
+      "use_cases": "商品购买、报名、结算、聊天输入等持续可用的主操作。",
+      "visual_rules": "主按钮唯一；价格/摘要与按钮关系清楚；背景与内容有边界；顶部不遮挡。",
+      "interaction_rules": "滚动时保持；键盘弹起时上移或让位；点击有 loading 和防重复；禁用原因可见。",
+      "touch_target": "按钮高度至少 88rpx；次要操作有足够间距；安全区 padding 必须计算。",
+      "states": "常规、禁用、加载、成功、错误、键盘/安全区",
+      "accessibility": "按钮名称具体；禁用原因可读；安全区适配后仍可触达。",
+      "native_implementation": "fixed 容器加 padding-bottom: calc(24rpx + env(safe-area-inset-bottom))；页面内容加等价 padding-bottom；键盘用 adjust-position。",
+      "common_errors": "固定栏遮住最后一段内容；安全区计算错误；一个栏里放三个主按钮；加载时仍可点击。"
+    },
+    {
+      "id": "comp-empty",
+      "name": "空状态",
+      "use_cases": "列表为空、搜索无结果、未登录、未收藏等。",
+      "visual_rules": "具体插画或图标；清晰标题；解释原因；一个主操作；保持品牌语气。",
+      "interaction_rules": "按钮可执行；无结果可修改筛选或返回；加载失败不要伪装为空。",
+      "touch_target": "主按钮至少 88rpx 高；空状态内不要放多个同等按钮。",
+      "states": "首次为空、筛选为空、无权限、未登录",
+      "accessibility": "文案可读且具体；插画有替代说明或隐藏；主操作名称明确。",
+      "native_implementation": "普通 view/image；插画使用本地资源并提供失败占位；搜索空态保留关键词。",
+      "common_errors": "所有空态同一句“暂无数据”；只有插画没有行动；错误与空状态混淆。"
+    },
+    {
+      "id": "comp-loading",
+      "name": "加载状态",
+      "use_cases": "首次加载、提交中、局部刷新和长任务。",
+      "visual_rules": "形式与范围匹配：首屏用骨架，按钮内用旋转/文字，局部刷新不遮全屏；避免长时间无进度。",
+      "interaction_rules": "超时后给出重试；可取消的长任务提供取消；不要重复叠加 loading。",
+      "touch_target": "若提供取消按钮，至少 88rpx。",
+      "states": "首屏、局部、提交中、超时、可取消",
+      "accessibility": "有文本说明正在做什么；动画不引发闪烁；屏幕阅读器可获知繁忙状态。",
+      "native_implementation": "wx.showLoading 适合短提交；长时间任务使用页面状态；避免 loading 与 toast 同时出现。",
+      "common_errors": "全屏 loading 遮住导航；无超时；加载失败后仍显示 loading；重复点击叠加。"
+    },
+    {
+      "id": "comp-toast",
+      "name": "轻提示",
+      "use_cases": "短时、非阻塞的操作结果反馈。",
+      "visual_rules": "文案短；位置不遮主操作；同屏不堆叠多个 toast；错误与成功视觉可区分。",
+      "interaction_rules": "1.5–3 秒自动消失；重要错误不能只用 toast；重复操作合并；支持屏幕阅读。",
+      "touch_target": "不含交互；如包含“撤销”等操作，必须用可交互条并保证热区。",
+      "states": "成功、失败、普通、加载、隐藏",
+      "accessibility": "文本可读；重要信息同时更新页面状态；不仅靠图标或颜色。",
+      "native_implementation": "wx.showToast 适合短反馈；需要操作时使用页面内提示条；避免与 loading 同时出现。",
+      "common_errors": "用 toast 代替字段错误；toast 文案过长；连续弹多个覆盖；关键错误无持久提示。"
+    },
+    {
+      "id": "comp-share",
+      "name": "分享入口",
+      "use_cases": "分享给好友、生成海报、分享内容或邀请。",
+      "visual_rules": "入口不抢主任务；分享卡标题、封面和描述可预览；好友分享与朋友圈能力区分。",
+      "interaction_rules": "点击后触发平台分享或生成海报；取消不算失败；受权限/环境限制时说明。",
+      "touch_target": "分享按钮至少 88rpx；悬浮分享不遮挡主操作。",
+      "states": "可分享、生成中、成功、失败、取消",
+      "accessibility": "分享按钮有明确名称；分享内容不包含敏感信息；海报可保存/替代。",
+      "native_implementation": "button open-type='share' 配合页面 onShareAppMessage；朋友圈分享通过 onShareTimeline 的可用性按平台版本验证；避免伪造分享面板。",
+      "common_errors": "所有页面都放悬浮分享；分享图标无文字；分享路径丢失参数；未授权也显示成功。"
+    },
+    {
+      "id": "comp-chart",
+      "name": "数据图表",
+      "use_cases": "趋势、分布、对比、进度和异常数据。",
+      "visual_rules": "标题、单位、时间范围、图例齐全；数据墨水比高；颜色编码配形状/文字；空数据有说明。",
+      "interaction_rules": "触摸提示可读；横屏/窄屏均可；筛选改变时保留上下文；数据更新不闪屏。",
+      "touch_target": "图表内可交互区域按平台触摸规则；筛选按钮至少 88rpx。",
+      "states": "加载、成功、空、部分失败、实时更新、无权限",
+      "accessibility": "图表有文字摘要；颜色对比足够；图例可读；不使用红绿唯一编码。",
+      "native_implementation": "canvas 2d 或兼容组件；避免在 canvas 上覆盖不可点击的假按钮；图表库评估包体与 Skyline 兼容。",
+      "common_errors": "图表没有单位；只靠颜色；图例拥挤；小屏坐标不可读。"
+    },
+    {
+      "id": "comp-nav-native",
+      "name": "原生导航栏",
+      "use_cases": "需要系统级返回、标题和胶囊按钮的标准页面。",
+      "visual_rules": "标题简短且与页面 H1 一致；背景与页面顶部自然衔接；不使用与系统胶囊冲突的右侧控件。",
+      "interaction_rules": "返回沿用微信行为；页面内不重复实现一个假的系统返回；标题变化要反映当前层级。",
+      "touch_target": "返回和胶囊由平台提供；页面内相邻控件仍按 88rpx 基线。",
+      "states": "默认、加载中、标题变化、深色/浅色文字",
+      "accessibility": "标题可被朗读；不要仅靠颜色表示页面状态；自定义内容不覆盖胶囊。",
+      "native_implementation": "app.json 或页面 JSON 配置 navigationBarTitleText、navigationBarBackgroundColor、navigationBarTextStyle；优先原生导航。",
+      "common_errors": "自定义导航与原生导航叠加；标题过长被截断；右侧按钮压住胶囊。"
+    },
+    {
+      "id": "comp-nav-custom",
+      "name": "自定义导航栏",
+      "use_cases": "品牌沉浸页、媒体详情或需要特殊顶部结构的页面。",
+      "visual_rules": "高度由状态栏+导航内容区计算；左右预留胶囊区域；滚动时背景变化要有边界。",
+      "interaction_rules": "必须提供可预期的返回；无返回栈时提供明确首页入口；避免透明导航让文字不可读。",
+      "touch_target": "返回键至少 88rpx×88rpx；可点区域不得与胶囊重叠。",
+      "states": "初始透明、滚动后实色、加载、错误、深浅背景",
+      "accessibility": "标题和返回按钮有可访问名称；透明背景上的文字要通过对比检查。",
+      "native_implementation": "使用 wx.getWindowInfo 获取状态栏信息，使用 wx.getMenuButtonBoundingClientRect 计算胶囊位置；wx.getSystemInfoSync 属于旧接口，按目标基础库选择并做好回退。",
+      "common_errors": "硬编码状态栏高度；只在模拟器测试；右侧放按钮与胶囊冲突；透明导航不随滚动变化。"
+    },
+    {
+      "id": "comp-tabbar",
+      "name": "底部 TabBar",
+      "use_cases": "存在 2–5 个稳定、同层级主区域的首页级导航。",
+      "visual_rules": "文字和图标同样重要；选中态明确；图标风格统一；避免超过 5 项，官方建议不超过 4 项。",
+      "interaction_rules": "切换不叠加页面栈；未读徽标与消息页同步；再次点击当前项可回到顶部（可选且有反馈）。",
+      "touch_target": "每项可点宽度按屏宽分配，高度和图标区域不应压缩点击；安全区另行处理。",
+      "states": "默认、选中、未读、禁用/隐藏",
+      "accessibility": "每项包含可见文字；未读数不只靠红点；选中态不只靠颜色。",
+      "native_implementation": "app.json tabBar.list 配置 2–5 项；icon 建议 81×81px 且小于 40KB，不支持网络图片；需要品牌化时评估 custom tabBar 的成本。",
+      "common_errors": "TabBar 超过 5 项；只放图标没有文字；图标尺寸和线宽不一致；自定义 TabBar 忘记安全区。"
+    }
+  ],
+  "ux_rules": [
+    {
+      "id": "ux-hierarchy",
+      "severity": "P1",
+      "category": "信息层级",
+      "name": "首屏焦点唯一",
+      "recommendation": "每个首屏只设一个主任务或主信息；用字号、对比和位置共同建立层级；次要内容降低权重但不牺牲可读性。",
+      "how_to_check": "眯眼或快速扫视首屏，确认最先看到的两项是否符合业务优先级；移除色彩后检查字号和位置层级是否仍成立。",
+      "fix": "明确唯一主任务，放大或前置；合并重复模块；减少同权重操作。"
+    },
+    {
+      "id": "ux-action-feedback",
+      "severity": "P1",
+      "category": "操作反馈",
+      "name": "所有可操作元素都有反馈",
+      "recommendation": "按下态、处理中和结果态齐全；短操作立即反馈；超过可感知等待时显示进度；失败给出可恢复动作。",
+      "how_to_check": "逐一点击首屏与核心路径控件，记录是否出现视觉状态或页面变化；断网重试。",
+      "fix": "为按钮绑定真实动作；增加 hover-class、loading、toast 或页面内状态；移除无功能入口。"
+    },
+    {
+      "id": "ux-loading-states",
+      "severity": "P1",
+      "category": "加载状态",
+      "name": "等待有范围且有出路",
+      "recommendation": "加载形式匹配范围；骨架预留布局；超时转为可重试错误；长任务提供进度或取消。",
+      "how_to_check": "在正常网络、弱网和断网下观察首屏与分页；记录等待时间和退出方式。",
+      "fix": "区分首屏/局部/提交加载；增加超时与重试；修正骨架尺寸。"
+    },
+    {
+      "id": "ux-error-states",
+      "severity": "P1",
+      "category": "错误状态",
+      "name": "错误说明影响与恢复方式",
+      "recommendation": "用用户语言说明发生了什么、影响和下一步；保留安全返回；提供重试、修改或客服；敏感信息不展示。",
+      "how_to_check": "模拟接口 4xx/5xx、超时和权限拒绝，检查文案、重试、返回和敏感信息。",
+      "fix": "建立错误映射；区分可重试与不可恢复；只记录技术细节到日志。"
+    },
+    {
+      "id": "ux-touch-target",
+      "severity": "P1",
+      "category": "触摸交互",
+      "name": "可点击目标足够大且不拥挤",
+      "recommendation": "触控热区至少 88rpx×88rpx 为工程基线，并参考微信 7–9mm 物理尺寸建议；相邻可点区域留有间距；视觉尺寸可以更小但热区不能缩小。",
+      "how_to_check": "逐项测量实际可点区域而不是图标大小；用拇指和不同机型测试；检查间距。",
+      "fix": "扩大 padding 或伪元素热区；拆分危险操作；把并列图标移入动作面板。"
+    },
+    {
+      "id": "ux-back-behavior",
+      "severity": "P1",
+      "category": "页面返回行为",
+      "name": "返回不丢上下文也不误退出",
+      "recommendation": "返回与入口一致；保留筛选和滚动位置；未保存表单提示；无栈时显示安全出口；不覆盖平台手势返回。",
+      "how_to_check": "逐页测试系统返回、左上角返回和手势返回，核对页面与状态。",
+      "fix": "修复路由和自定义返回；保存页面状态；在 onUnload/onHide 前提供未保存提示。"
+    },
+    {
+      "id": "ux-scroll",
+      "severity": "P2",
+      "category": "页面滚动",
+      "name": "只有明确的主滚动容器",
+      "recommendation": "一个视口只保留一个主滚动区域；内部滚动需有边界和理由；打开模态时锁定背景；为固定栏预留空间。",
+      "how_to_check": "从顶部滚到底部，打开/关闭模态，检查滚动位置、背景滚动和最后一项可见性。",
+      "fix": "简化滚动容器；固定栏用占位 padding；锁背景滚动。"
+    },
+    {
+      "id": "ux-bottom-bar",
+      "severity": "P1",
+      "category": "底部操作栏",
+      "name": "固定操作栏不遮挡内容",
+      "recommendation": "内容区增加与底栏等高的 padding；底部加上安全区域；键盘场景动态调整；底栏主操作唯一。",
+      "how_to_check": "滚到页面最底部，检查最后内容、按钮与安全区；在刘海屏和键盘下复查。",
+      "fix": "增加内容底部占位；使用 env(safe-area-inset-bottom)；处理键盘布局。"
+    },
+    {
+      "id": "ux-dark-theme",
+      "severity": "P2",
+      "category": "深色主题",
+      "name": "深色模式可用且不是简单反色",
+      "recommendation": "提供独立深色 token；图片和图表有深色版本或降亮；保持语义色一致；不只依赖系统自动反色。",
+      "how_to_check": "切换系统深色；检查文字、图标、图片、弹窗、输入框和错误态。",
+      "fix": "建立深色配色映射；验证对比；调整图片遮罩和阴影。"
+    },
+    {
+      "id": "ux-empty-states",
+      "severity": "P2",
+      "category": "空状态",
+      "name": "空状态解释原因并给出下一步",
+      "recommendation": "区分首次为空、筛选为空、无权限和错误；文案具体；提供一个最有价值的下一步。",
+      "how_to_check": "构造搜索无结果、新账号、无权限和网络失败四种状态，检查文案与操作是否不同。",
+      "fix": "为不同空态配置文案与主操作；搜索空态保留关键词并提供改词建议；错误态不要混为空。"
+    },
+    {
+      "id": "ux-long-text",
+      "severity": "P2",
+      "category": "长文本处理",
+      "name": "长文本可读且可展开",
+      "recommendation": "标题限定行数但提供详情；正文可换行；关键字段不截断；超长内容可展开或单独页面。",
+      "how_to_check": "使用超长中英文、数字和无空格字符串测试；检查截断、换行和完整信息入口。",
+      "fix": "统一行数限制；为可展开内容提供明确按钮；调整容器为自适应高度。"
+    },
+    {
+      "id": "ux-image-fallback",
+      "severity": "P2",
+      "category": "图片加载失败",
+      "name": "图片失败不破坏布局",
+      "recommendation": "预留宽高比和占位；失败显示品牌占位或重试；重要信息不依赖图片；长列表懒加载。",
+      "how_to_check": "断网、慢网和错误 URL 下检查图片占位、布局和重试。",
+      "fix": "统一图片容器比例；添加占位和错误态；关键信息以文本呈现。"
+    }
+  ],
+  "mini_program_rules": [
+    {
+      "id": "mp-native-nav",
+      "severity": "P1",
+      "category": "导航",
+      "name": "优先使用微信原生导航栏",
+      "recommendation": "没有明确品牌需求时使用原生导航；标题与页面主标题一致；页面内不再绘制第二套返回栏。",
+      "implementation": "页面 JSON 设置 navigationBarTitleText；全局在 app.json window 配置；需要动态标题时使用 wx.setNavigationBarTitle。",
+      "how_to_verify": "在开发者工具和真机检查 iOS/Android 返回、标题、胶囊与深色背景。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html"
+    },
+    {
+      "id": "mp-safe-area",
+      "severity": "P1",
+      "category": "安全区域",
+      "name": "底部和顶部安全区域不能靠猜测",
+      "recommendation": "为固定底栏增加安全区 padding；页面内容增加等量占位；使用 env(safe-area-inset-bottom) 等能力时提供可视检查和无变量时的回退。",
+      "implementation": "底栏 padding-bottom: calc(24rpx + env(safe-area-inset-bottom))；内容区同步预留；必要时结合窗口安全区域数据。",
+      "how_to_verify": "在全面屏 iPhone、Android 手势导航、非全面屏和开发者工具多机型中检查最后一行内容与按钮。",
+      "verification_status": "需按目标基础库与真机验证",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/design/index.html"
+    },
+    {
+      "id": "mp-touch-target",
+      "severity": "P1",
+      "category": "交互",
+      "name": "点击区域按物理尺寸校验",
+      "recommendation": "把 88rpx×88rpx 作为工程基线，关键操作用更大热区；相邻操作留间距；图标按钮扩大 padding。",
+      "implementation": "CSS 使用 min-height/min-width 和 padding；用伪元素扩展热区；复杂小操作移入动作面板。",
+      "how_to_verify": "用不同机型实际手指点击；测量热区而非图标；测试边缘和相邻误触。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/design/index.html"
+    },
+    {
+      "id": "mp-back",
+      "severity": "P1",
+      "category": "导航",
+      "name": "自定义返回必须与路由栈一致",
+      "recommendation": "返回按钮检查页面栈深度；无上一页或来自分享时回到明确的安全页面；未保存内容先确认。",
+      "implementation": "用 getCurrentPages() 判断栈深；统一封装返回；对入口参数做标记；表单页在返回前提示。",
+      "how_to_verify": "分别从首页、分享卡、扫码和消息入口进入深层页面再返回。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/framework/app-service/route.html"
+    },
+    {
+      "id": "mp-page-lifecycle",
+      "severity": "P2",
+      "category": "生命周期",
+      "name": "onShow 与 onHide 不是可忽略细节",
+      "recommendation": "在 onShow 刷新对实时性敏感的数据；清理定时器/监听器；避免在 onShow 无限重复请求；理解缓存和状态恢复。",
+      "implementation": "onLoad 获取参数和初始化；onShow 做轻量刷新；onHide/onUnload 清理；请求加去重与取消。",
+      "how_to_verify": "从详情、支付、分享和 TabBar 往返，观察数据刷新、定时器和重复请求。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/framework/app-service/route.html"
+    },
+    {
+      "id": "mp-performance",
+      "severity": "P1",
+      "category": "性能",
+      "name": "首屏与 setData 影响设计实现",
+      "recommendation": "首屏只加载必要内容；图片控制尺寸和懒加载；减少大对象 setData；动画优先 transform/opacity；复杂图表做降级。",
+      "implementation": "分包、按需注入、图片压缩与 CDN 尺寸参数、setData 局部路径、骨架屏、长列表虚拟化。",
+      "how_to_verify": "低端 Android、弱网、长列表滚动、页面切换和持续动画下观察帧率与内存。",
+      "verification_status": "需按项目基础库与真机验证",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/framework/performance/"
+    },
+    {
+      "id": "mp-devtools-vs-device",
+      "severity": "P1",
+      "category": "环境",
+      "name": "开发者工具通过不等于真机通过",
+      "recommendation": "静态审查、开发者工具、真机和弱网分别记录；未执行的检查明确标为未执行；不得把模拟器截图当真实体验。",
+      "implementation": "建立环境矩阵；至少覆盖一台 iOS 和一台 Android 真机；记录基础库、微信版本、机型和网络。",
+      "how_to_verify": "逐项标注检查环境；真机走核心路径；收集截图、日志和问题。",
+      "verification_status": "项目原则；平台差异需实测",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/design/index.html"
+    },
+    {
+      "id": "mp-tabbar",
+      "severity": "P1",
+      "category": "导航",
+      "name": "原生 TabBar 控制在 2–5 项且主任务稳定",
+      "recommendation": "只有存在 2–5 个稳定一级区域时才使用 TabBar；优先 3–4 项；文字不可省略；未读状态同步。",
+      "implementation": "app.json 配置 tabBar；需要动态显隐时评估 wx.hideTabBar 等 API 对布局的影响；自定义 TabBar 必须处理状态同步和安全区。",
+      "how_to_verify": "检查配置数量、每项文字、图标、选中态、未读、返回栈和真机安全区。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/design/index.html"
+    },
+    {
+      "id": "mp-tabbar-icon",
+      "severity": "P2",
+      "category": "图标",
+      "name": "TabBar 图标资源符合平台约束",
+      "recommendation": "使用本地 PNG/SVG 支持范围内的资源；普通态和选中态视觉线宽一致；文字仍显示；准备多倍率检查。",
+      "implementation": "准备本地图标资源放入项目；在 app.json 配置 iconPath 和 selectedIconPath；检查包体和清晰度。",
+      "how_to_verify": "真机检查清晰度、选中态、暗色背景、包体和未读徽标。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html"
+    },
+    {
+      "id": "mp-fixed-bottom",
+      "severity": "P1",
+      "category": "布局",
+      "name": "固定底栏不得遮挡页面内容",
+      "recommendation": "固定栏高度加安全区作为内容 padding-bottom 的基线；键盘场景动态计算；底部唯一主操作。",
+      "implementation": "CSS 固定栏 + 内容占位变量；输入页使用 adjust-position 或键盘高度；把底栏组件化统一计算。",
+      "how_to_verify": "滚到每个页面最底部，检查最后一项、按钮和文案；在键盘弹起时复测。",
+      "verification_status": "需按目标基础库与真机验证",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/design/index.html"
+    },
+    {
+      "id": "mp-scroll",
+      "severity": "P2",
+      "category": "滚动",
+      "name": "页面滚动与 scroll-view 只选一个主容器",
+      "recommendation": "默认让页面滚动；需要固定头部/局部滚动时才用 scroll-view，并明确高度；禁止多层同向滚动嵌套。",
+      "implementation": "页面滚动用 onReachBottom；局部用 scroll-view 设置固定高度、scroll-y 和 bindscrolltolower；模态打开时锁背景。",
+      "how_to_verify": "从顶部滚到底部、打开模态、切换筛选，观察手势和滚动位置。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/component/scroll-view.html"
+    }
+  ],
+  "anti_patterns": [
+    {
+      "id": "anti-card-everywhere",
+      "severity": "P2",
+      "name": "所有组件都使用圆角卡片",
+      "manifestation": "页面、列表、表单、设置、统计都包在同样的白底圆角阴影卡里，模块之间只靠卡片分隔。",
+      "detection": "检查页面是否连续出现三层以上卡片；移除阴影和圆角后是否仍有清晰分组；不同内容是否使用同一容器。",
+      "fix": "建立页面分区、列表行、数据块和卡片四种容器；卡片只用于需要整体点击或独立比较的内容。"
+    },
+    {
+      "id": "anti-animation-overload",
+      "severity": "P2",
+      "name": "动画过多",
+      "manifestation": "每个模块入场、悬浮、无限粒子、按钮持续弹跳，影响阅读和性能。",
+      "detection": "统计动画数量与持续时间；检查是否无限循环、是否可关闭、低端机帧率。",
+      "fix": "动效只表达状态/空间关系；限制时长 120–240ms；移除无限装饰；提供低动效路径。"
+    },
+    {
+      "id": "anti-decorative-icons",
+      "severity": "P3",
+      "name": "不必要的装饰图标",
+      "manifestation": "每个标题、列表项和状态都配一个图标，图标与语义无关，增加噪音。",
+      "detection": "移除图标后检查信息是否仍然清楚；统计图标数量及用途；寻找重复语义。",
+      "fix": "只保留帮助识别或执行动作的图标；统一图标库；装饰交给排版和图像。"
+    },
+    {
+      "id": "anti-bottom-bar-overlap",
+      "severity": "P1",
+      "name": "固定底部按钮遮挡内容",
+      "manifestation": "页面最后一段文字、按钮或图片被购买栏/输入栏永久覆盖。",
+      "detection": "滚到最底部检查最后内容；测量底栏高度和安全区；打开键盘复测。",
+      "fix": "内容区 padding-bottom = 底栏高度 + 安全区；组件化底栏；键盘场景动态更新。"
+    },
+    {
+      "id": "anti-low-contrast",
+      "severity": "P1",
+      "name": "低对比度文本",
+      "manifestation": "浅灰字放在白底或米色底，价格、说明和禁用态难以阅读。",
+      "detection": "用对比度工具测量正文和背景，目标至少 4.5:1；灰度检查；深色模式单独测量。",
+      "fix": "加深文字或调整背景；重新定义次级文字 token；禁止用浅灰承载关键信息。"
+    },
+    {
+      "id": "anti-shadow-overuse",
+      "severity": "P2",
+      "name": "过度使用阴影",
+      "manifestation": "每个卡片、按钮、标签和输入框都有阴影，背景与表面没有明确层次。",
+      "detection": "统计阴影层数；在低端设备和深色模式下检查灰边、脏色和性能。",
+      "fix": "最多保留两档阴影；用边框、背景和间距分担层次；深色模式改用亮度和边框。"
+    },
+    {
+      "id": "anti-weak-hierarchy",
+      "severity": "P1",
+      "name": "视觉层级不清晰",
+      "manifestation": "标题、正文、价格和按钮字号接近，颜色权重相同，用户扫视后不知道该看哪里。",
+      "detection": "灰度截图检查层级；眯眼测试第一视觉焦点；去掉颜色后检查字号、字重、间距和位置。",
+      "fix": "为主信息、次信息、辅助信息定义三级以上差异；确保首屏只有一个焦点；用位置和留白加强。"
+    },
+    {
+      "id": "anti-type-chaos",
+      "severity": "P2",
+      "name": "字号层级混乱",
+      "manifestation": "相邻模块字号无规律，标题比上一级还小，辅助文字过多且字号过小。",
+      "detection": "收集所有 font-size 值并去重排序；检查是否超过 5–7 个层级；测量正文与辅助字号。",
+      "fix": "建立 5–7 级字号 token；正文 28–32rpx；辅助不低于 24rpx；所有页面使用同一比例。"
+    },
+    {
+      "id": "anti-meaningless-gradient",
+      "severity": "P2",
+      "name": "无意义渐变背景",
+      "manifestation": "首屏和卡片大量使用紫粉、蓝紫或彩虹渐变，渐变与品牌、内容或状态没有关系。",
+      "detection": "统计渐变使用位置，逐个询问它是否表达品牌、光源、状态或层级；移除后若信息完全不受影响，即为装饰性渐变。",
+      "fix": "只保留有业务含义的渐变，如品牌资产或状态过渡；改用纯色、图文或编辑式层级建立识别。"
+    },
+    {
+      "id": "anti-unexpected-back",
+      "severity": "P1",
+      "name": "页面返回行为不符合预期",
+      "manifestation": "从详情返回首页、筛选状态丢失、表单内容清空、无栈时返回无反应。",
+      "detection": "从每个入口进入再返回，记录页面与状态；测试系统手势返回和分享冷启动。",
+      "fix": "返回目标与入口一致；保存筛选/滚动/表单；无栈回安全页；提示未保存。"
+    }
+  ],
+  "stack_rules": [
+    {
+      "id": "wx-project-structure",
+      "severity": "P0",
+      "guideline": "以 app.json 的页面注册为路由事实来源",
+      "do": "先读 app.json/project.config.json 再改 UI；页面路径与文件名一致；新增页面同步注册。",
+      "don_t": "只创建 page.wxml 不注册页面；把 Web 的 index.html 当作小程序入口。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html"
+    },
+    {
+      "id": "wx-wxml-binding",
+      "severity": "P0",
+      "guideline": "数据绑定和列表渲染使用 WXML 语法",
+      "do": "使用 view/text/image/button 等小程序组件；列表加 wx:key；事件名称使用 bindtap/catchtap。",
+      "don_t": "在 WXML 写 onclick、document.querySelector 或 div；用 v-if/React JSX 语法。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/"
+    },
+    {
+      "id": "wx-wxss-rpx",
+      "severity": "P1",
+      "guideline": "WXSS 使用 rpx 建立跨屏比例",
+      "do": "设计稿按 750 宽标注；正文用 rpx；避免依赖未确认的浏览器特性；复杂效果准备回退。",
+      "don_t": "把 px 固定宽度、vh 魔法值和浏览器专属选择器直接搬入 WXSS。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxss.html"
+    },
+    {
+      "id": "wx-routing",
+      "severity": "P1",
+      "guideline": "根据页面类型选择路由 API",
+      "do": "封装路由并防重复；tabBar 用 switchTab；支付结果等使用 redirectTo/reLaunch 避免返回重复支付；检查页面栈。",
+      "don_t": "用 navigateTo 打开 tabBar；连续点击创建三个详情；依赖取消路由。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/framework/app-service/route.html"
+    },
+    {
+      "id": "wx-safe-area",
+      "severity": "P1",
+      "guideline": "固定底部元素加安全区与内容占位",
+      "do": "底栏 padding-bottom 加安全区；页面内容同样留出高度；真机检查最后一项。",
+      "don_t": "bottom: 0 且没有 padding，按钮贴边被遮。",
+      "verification_status": "需按目标基础库与真机验证",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/design/index.html"
+    },
+    {
+      "id": "wx-page-config",
+      "severity": "P2",
+      "guideline": "页面标题、导航和滚动行为放在页面 JSON 中",
+      "do": "逐页设置标题；需要自定义导航才设 navigationStyle custom；开启下拉刷新同时实现回调。",
+      "don_t": "在 JS 中动态伪造所有导航配置；页面没有标题。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/page.html"
+    },
+    {
+      "id": "wx-native-component",
+      "severity": "P1",
+      "guideline": "原生组件层级和覆盖能力需要实测",
+      "do": "避免把关键交互层叠在原生组件上；使用官方支持的覆盖方式；准备降级；在目标渲染引擎测试。",
+      "don_t": "用 z-index 覆盖 map 上的筛选弹窗；假设 video 上任何 view 都可点击。",
+      "verification_status": "需按渲染引擎与组件版本验证",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/component/"
+    },
+    {
+      "id": "wx-app-tabbar",
+      "severity": "P1",
+      "guideline": "原生 TabBar 配置符合平台限制",
+      "do": "保持 3–4 个稳定主区域；每项有文字；图标本地提供；选中态明确。",
+      "don_t": "配置 6 个 Tab；只放图标；TabBar 指向不存在页面。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html"
+    },
+    {
+      "id": "wx-fixed-bottom",
+      "severity": "P1",
+      "guideline": "固定底栏高度参与布局计算",
+      "do": "统一定义底栏高度 token；内容区用变量或类增加 padding；键盘弹起时调整。",
+      "don_t": "详情页最后内容被购买栏覆盖；表单提交按钮被键盘遮挡。",
+      "verification_status": "需按目标基础库与真机验证",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxss.html"
+    },
+    {
+      "id": "wx-share",
+      "severity": "P2",
+      "guideline": "分享配置属于页面而不是按钮动画",
+      "do": "分享卡提供标题、封面和路径；从分享进入可回到详情；不泄露隐私。",
+      "don_t": "自己画一个分享面板但不触发平台分享。",
+      "verification_status": "已核对官方文档",
+      "source_url": "https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/share.html"
+    }
+  ],
+  "conflicts": [],
+  "design_rationale": [
+    {
+      "step": "产品类型",
+      "choice": "音乐播放器 (prod-music)",
+      "reason": "音乐产品的主角是封面、曲目、播放状态与连续体验。首页应直接服务继续收听和发现，播放器控制必须始终可达；色彩可以沉浸，但不能牺牲歌词与操作的对比。",
+      "sources": [
+        "prod-music"
+      ]
+    },
+    {
+      "step": "设计风格",
+      "choice": "内容优先型 (style-content-first)",
+      "reason": "由产品类型的推荐风格与设计推理规则推导。 标题、封面、摘要、作者与时间的层级经过设计；装饰让位于内容；阅读宽度和行高优先。",
+      "sources": [
+        "style-content-first"
+      ]
+    },
+    {
+      "step": "配色",
+      "choice": "音乐夜色 (palette-music-night)",
+      "reason": "沉浸播放、封面、歌词和夜间浏览。 深色底上的正文对比充足；荧光品牌色不用于长文本；播放进度与错误状态需要额外图形线索。",
+      "sources": [
+        "palette-music-night"
+      ]
+    },
+    {
+      "step": "排版",
+      "choice": "长文阅读排版 (type-reading-song)",
+      "reason": "阅读正文优先，标题略大；行高比默认更大；每屏保留稳定节奏。 正文建议 30–34rpx；尊重系统字号；长文提供字号调节或允许换行；底部栏不覆盖最后一段。",
+      "sources": [
+        "type-reading-song"
+      ]
+    },
+    {
+      "step": "页面结构",
+      "choice": "首页、音乐播放器、搜索页、搜索结果页、个人中心",
+      "reason": "按产品核心任务排序，页面级覆盖默认继承 Master。",
+      "sources": [
+        "layout-home",
+        "layout-music-player",
+        "layout-search",
+        "layout-search-results",
+        "layout-profile"
+      ]
+    },
+    {
+      "step": "技术栈",
+      "choice": "微信原生小程序 (wechat-native)",
+      "reason": "加载对应框架规则并区分静态审查、开发者工具与真机验证。",
+      "sources": [
+        "wx-project-structure",
+        "wx-wxml-binding",
+        "wx-wxss-rpx",
+        "wx-routing",
+        "wx-safe-area",
+        "wx-page-config",
+        "wx-native-component",
+        "wx-app-tabbar",
+        "wx-fixed-bottom",
+        "wx-share"
+      ]
+    },
+    {
+      "step": "产品推理",
+      "choice": "内容消费",
+      "reason": "内容型产品应优先阅读/播放体验、持续状态和内容识别；装饰性卡片、自动播放和持续动效应让位于内容。",
+      "sources": [
+        "reason-content"
+      ]
+    }
+  ],
+  "acceptance_criteria": [
+    "首屏主任务清晰可见，且只保留一个主操作或主信息焦点。",
+    "核心任务路径覆盖：继续播放、发现新歌、搜索、收藏、查看歌词/队列。",
+    "所有可点击热区不小于 88rpx，相邻操作保持足够间距。",
+    "固定底部操作栏包含安全区处理，并为页面内容设置等高占位。",
+    "列表、表单、支付或长任务包含加载、空、错误与恢复状态，不以静态稿替代。",
+    "正文与背景、次级文字与背景的对比度不低于 4.5:1（以自动化检查结果为准）。",
+    "页面级规范只覆盖必要规则，不引入 Master 之外的新配色、字体或圆角语言。",
+    "设计 token 与组件样式一致，不允许新增未登记颜色或魔法间距。",
+    "静态检查、微信开发者工具和至少一台 iOS/一台 Android 真机的执行状态分别记录。",
+    "未执行的真机、键盘、安全区、分享与性能检查不得标记为通过。"
+  ],
+  "sources": {
+    "product": [
+      "prod-music"
+    ],
+    "style": [
+      "style-content-first"
+    ],
+    "palette": [
+      "palette-music-night"
+    ],
+    "typography": [
+      "type-reading-song"
+    ],
+    "layouts": [
+      "layout-home",
+      "layout-music-player",
+      "layout-search",
+      "layout-search-results",
+      "layout-profile"
+    ],
+    "components": [
+      "comp-search-bar",
+      "comp-image-preview",
+      "comp-avatar",
+      "comp-bottom-action",
+      "comp-empty",
+      "comp-loading",
+      "comp-toast",
+      "comp-share",
+      "comp-chart",
+      "comp-nav-native",
+      "comp-nav-custom",
+      "comp-tabbar"
+    ],
+    "ux_rules": [
+      "ux-hierarchy",
+      "ux-action-feedback",
+      "ux-loading-states",
+      "ux-error-states",
+      "ux-touch-target",
+      "ux-back-behavior",
+      "ux-scroll",
+      "ux-bottom-bar",
+      "ux-dark-theme",
+      "ux-empty-states",
+      "ux-long-text",
+      "ux-image-fallback"
+    ],
+    "mini_program_rules": [
+      "mp-native-nav",
+      "mp-safe-area",
+      "mp-touch-target",
+      "mp-back",
+      "mp-page-lifecycle",
+      "mp-performance",
+      "mp-devtools-vs-device",
+      "mp-tabbar",
+      "mp-tabbar-icon",
+      "mp-fixed-bottom",
+      "mp-scroll"
+    ],
+    "anti_patterns": [
+      "anti-card-everywhere",
+      "anti-animation-overload",
+      "anti-decorative-icons",
+      "anti-bottom-bar-overlap",
+      "anti-low-contrast",
+      "anti-shadow-overuse",
+      "anti-weak-hierarchy",
+      "anti-type-chaos",
+      "anti-meaningless-gradient",
+      "anti-unexpected-back"
+    ],
+    "stack_rules": [
+      "wx-project-structure",
+      "wx-wxml-binding",
+      "wx-wxss-rpx",
+      "wx-routing",
+      "wx-safe-area",
+      "wx-page-config",
+      "wx-native-component",
+      "wx-app-tabbar",
+      "wx-fixed-bottom",
+      "wx-share"
+    ],
+    "reasoning": [
+      "reason-content"
+    ]
+  },
+  "limitations": [
+    "本设计系统由本地知识库和可解释规则生成，不包含运行截图、视觉模型判断或真机结果。",
+    "CSS 自定义属性、安全区、原生组件和渲染引擎能力必须在目标基础库与真机验证。",
+    "平台规则带有核验状态；标记为“需按目标基础库验证”的规则不能当作已验证事实。",
+    "设计系统生成不等于页面实现；可选 DevTools 模拟器验收需要用户开启服务端口，且模拟器不等于真机。",
+    "设计系统不能替代对现有业务逻辑、权限和数据安全的审查。"
+  ]
+}

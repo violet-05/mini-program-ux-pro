@@ -1,0 +1,116 @@
+<view class="player-root">
+  <view
+    class="nav-shell"
+    style="padding-top: {{statusBarHeight}}px; padding-right: {{capsuleReserve}}px;"
+  >
+    <view class="nav-inner" style="height: {{navContentHeight}}px;">
+      <button
+        class="nav-back"
+        hover-class="is-pressed"
+        bindtap="back"
+        aria-label="返回上一页"
+      >‹ 返回</button>
+      <text class="nav-title">正在播放</text>
+    </view>
+  </view>
+
+  <view class="page player-page">
+    <view class="player-cover" aria-hidden="true">
+      <view class="cover-halo"></view>
+      <view class="cover-accent"></view>
+      <view class="cover-ring ring-one"></view>
+      <view class="cover-ring ring-two"></view>
+      <view class="cover-horizon"></view>
+      <text class="cover-wordmark">NIGHT / FLIGHT</text>
+    </view>
+
+    <view class="track-meta">
+      <text class="eyebrow">正在播放</text>
+      <text class="player-title">{{track.title}}</text>
+      <text class="player-artist">{{track.artist}} · {{track.album}}</text>
+    </view>
+
+    <view class="lyrics" wx:if="{{showLyrics}}">
+      <text class="lyric-line active">让城市的灯，退成远处的潮</text>
+      <text class="lyric-line">我沿着夜色，慢慢找回呼吸</text>
+    </view>
+
+    <button
+      class="lyrics-toggle"
+      hover-class="is-pressed"
+      bindtap="toggleLyrics"
+      aria-label="{{showLyrics ? '收起歌词' : '显示歌词'}}"
+    >{{showLyrics ? '收起歌词' : '显示歌词'}}</button>
+
+    <view class="progress-block">
+      <view class="progress-track" aria-hidden="true">
+        <view class="progress-fill" style="width: {{progress}}%;"></view>
+        <view class="progress-knob" style="left: {{progress}}%;"></view>
+      </view>
+      <view class="progress-time">
+        <text>{{currentTime}}</text>
+        <text>{{duration}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="player-dock">
+    <view class="dock-transport">
+      <button
+        class="dock-button favorite-button {{isFavorite ? 'is-active' : ''}}"
+        hover-class="is-pressed"
+        bindtap="toggleFavorite"
+        aria-label="{{isFavorite ? '取消收藏' : '收藏'}}"
+      >{{isFavorite ? '已收藏' : '收藏'}}</button>
+
+      <button
+        class="play-button {{isPlaying ? 'is-playing' : ''}}"
+        hover-class="is-pressed"
+        bindtap="togglePlay"
+        aria-label="{{isPlaying ? '暂停' : '播放'}}"
+      >
+        <view wx:if="{{isPlaying}}" class="icon-pause" aria-hidden="true">
+          <view></view>
+          <view></view>
+        </view>
+        <view wx:else class="icon-play" aria-hidden="true"></view>
+        <text class="play-label">{{isPlaying ? '暂停' : '播放'}}</text>
+      </button>
+
+      <button
+        class="dock-button queue-button"
+        hover-class="is-pressed"
+        bindtap="openQueue"
+        aria-label="打开播放队列"
+      >队列</button>
+    </view>
+  </view>
+
+  <view wx:if="{{showQueue}}" class="queue-mask" bindtap="closeQueue"></view>
+  <view wx:if="{{showQueue}}" class="queue-sheet" catchtap="noop">
+    <view class="sheet-handle" aria-hidden="true"></view>
+    <view class="sheet-head">
+      <text class="sheet-title">播放队列</text>
+      <button
+        class="sheet-close queue-close"
+        hover-class="is-pressed"
+        bindtap="closeQueue"
+        aria-label="关闭播放队列"
+      >关闭</button>
+    </view>
+    <scroll-view class="queue-scroll" scroll-y>
+      <view
+        wx:for="{{queue}}"
+        wx:key="id"
+        class="queue-row {{item.id === track.id ? 'is-current' : ''}}"
+      >
+        <text class="queue-index">0{{index + 1}}</text>
+        <view class="queue-copy">
+          <text class="queue-title">{{item.title}}</text>
+          <text class="queue-sub">{{item.artist}}</text>
+        </view>
+        <text class="queue-state">{{item.id === track.id ? '播放中' : ''}}</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>

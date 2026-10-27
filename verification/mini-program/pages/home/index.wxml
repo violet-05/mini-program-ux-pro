@@ -1,0 +1,93 @@
+<view class="page home-page">
+  <view class="hero">
+    <text class="eyebrow">晚间电台 · 本地推荐</text>
+    <text class="display">今晚，听见自己的节奏。</text>
+    <text class="hero-sub">从最近停下的地方继续，或换一首更慢的歌。</text>
+  </view>
+
+  <block wx:if="{{loading}}">
+    <view class="skeleton-card card" aria-label="正在加载推荐">
+      <view class="skeleton skeleton-cover"></view>
+      <view class="skeleton-copy">
+        <view class="skeleton skeleton-line short"></view>
+        <view class="skeleton skeleton-line"></view>
+        <view class="skeleton skeleton-line short"></view>
+      </view>
+    </view>
+    <view class="section">
+      <view class="skeleton skeleton-title"></view>
+      <view class="skeleton skeleton-line"></view>
+      <view class="skeleton skeleton-line"></view>
+      <view class="skeleton skeleton-line short"></view>
+    </view>
+  </block>
+
+  <block wx:elif="{{demoState === 'error'}}">
+    <view class="state-panel card state-error" aria-live="polite">
+      <text class="state-kicker">连接中断</text>
+      <text class="state-title">推荐暂时没有到达</text>
+      <text class="muted">你的收藏和最近播放还在。检查网络后再试一次。</text>
+      <button class="button button-primary retry-button" hover-class="is-pressed" bindtap="retry">重试</button>
+    </view>
+  </block>
+
+  <block wx:elif="{{demoState === 'empty'}}">
+    <view class="state-panel card state-empty" aria-live="polite">
+      <text class="state-kicker">今晚很安静</text>
+      <text class="state-title">还没有新的推荐</text>
+      <text class="muted">可以先播放最近收藏，或稍后再来看看。</text>
+      <button class="button button-ghost reset-button" hover-class="is-pressed" bindtap="resetState">回到推荐</button>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="continue-card card">
+      <view class="cover-night" aria-hidden="true">
+        <view class="cover-glow"></view>
+        <view class="cover-orbit orbit-one"></view>
+        <view class="cover-orbit orbit-two"></view>
+        <text class="cover-label">NIGHT</text>
+      </view>
+      <view class="continue-copy">
+        <text class="eyebrow">继续收听</text>
+        <text class="track-name">夜航</text>
+        <text class="muted">林屿 · 潮汐之后</text>
+        <view class="progress-track" aria-hidden="true">
+          <view class="progress-fill" style="width: 42%;"></view>
+        </view>
+        <text class="progress-meta">已听 1:33 / 3:42</text>
+        <button
+          class="button button-primary open-player"
+          hover-class="is-pressed"
+          bindtap="openPlayer"
+          aria-label="继续播放夜航"
+        >继续播放</button>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-head">
+        <text class="section-title">今夜歌单</text>
+        <text class="section-meta">3 首</text>
+      </view>
+      <view class="track-list">
+        <button
+          wx:for="{{tracks}}"
+          wx:key="id"
+          class="track-row"
+          data-id="{{item.id}}"
+          bindtap="openTrack"
+          hover-class="is-pressed"
+          aria-label="播放 {{item.title}}，{{item.artist}}"
+        >
+          <text class="track-index">0{{index + 1}}</text>
+          <view class="track-copy">
+            <text class="track-title">{{item.title}}</text>
+            <text class="track-sub">{{item.artist}} · {{item.album}}</text>
+          </view>
+          <text class="track-duration">{{item.duration}}</text>
+        </button>
+      </view>
+    </view>
+  </block>
+</view>

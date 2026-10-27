@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0.0",
+  "report_type": "static-mini-program-review",
+  "generator": {
+    "name": "mini-program-ux-pro",
+    "version": "1.0.0"
+  },
+  "project": {
+    "name": "verification",
+    "path": "<workspace>/verification",
+    "stack": "wechat-native",
+    "stack_label": "微信原生小程序",
+    "stack_detection": "检测到 project.config.json 与 app.json（含 miniprogramRoot）"
+  },
+  "generated_at": "2026-10-27T10:54:25+00:00",
+  "environment": {
+    "mode": "static-code-review",
+    "runtime": "not_run",
+    "browser_preview": "not_run",
+    "wechat_devtools": "not_run",
+    "real_device": "not_run",
+    "visual_model": "not_run"
+  },
+  "scope": {
+    "files_scanned": 22,
+    "pages_declared": 3,
+    "pages_found": 3,
+    "page_paths": [
+      "pages/home/index",
+      "pages/player/index",
+      "pages/profile/index"
+    ],
+    "design_system": {
+      "path": "design-system/MASTER.json",
+      "project": "音乐播放器",
+      "version": "1.0.0",
+      "schema_version": "1.0.0",
+      "generated_at": "2026-10-27T10:51:12+00:00"
+    }
+  },
+  "executed_checks": [
+    {
+      "id": "project-structure",
+      "finding_groups": 0,
+      "mode": "static"
+    },
+    {
+      "id": "tabbar-config",
+      "finding_groups": 0,
+      "mode": "static"
+    },
+    {
+      "id": "custom-navigation",
+      "finding_groups": 0,
+      "mode": "static"
+    },
+    {
+      "id": "dom-browser-api",
+      "finding_groups": 0,
+      "mode": "static"
+    },
+    {
+      "id": "safe-area",
+      "finding_groups": 0,
+      "mode": "static"
+    },
+    {
+      "id": "touch-target-css",
+      "finding_groups": 0,
+      "mode": "static"
+    },
+    {
+      "id": "font-size-css",
+      "finding_groups": 0,
+      "mode": "static"
+    },
+    {
+      "id": "ui-states",
+      "finding_groups": 0,
+      "mode": "static"
+    },
+    {
+      "id": "images",
+      "finding_groups": 0,
+      "mode": "static"
+    },
+    {
+      "id": "privacy",
+      "finding_groups": 0,
+      "mode": "static"
+    },
+    {
+      "id": "design-tokens",
+      "finding_groups": 0,
+      "mode": "static"
+    },
+    {
+      "id": "wxml-keys",
+      "finding_groups": 0,
+      "mode": "static"
+    },
+    {
+      "id": "misc-css",
+      "finding_groups": 0,
+      "mode": "static"
+    }
+  ],
+  "skipped_checks": [
+    {
+      "id": "runtime-render",
+      "reason": "未运行微信开发者工具或真实项目"
+    },
+    {
+      "id": "visual-hierarchy",
+      "reason": "没有页面截图，视觉模型未接入"
+    },
+    {
+      "id": "keyboard-safe-area",
+      "reason": "需要 iOS/Android 真机与输入法"
+    },
+    {
+      "id": "performance",
+      "reason": "静态代码无法测量帧率、首屏和 setData 成本"
+    },
+    {
+      "id": "screen-reader",
+      "reason": "需要 VoiceOver/TalkBack 等运行时辅助技术"
+    },
+    {
+      "id": "network-weak",
+      "reason": "需要限速、断网与真实接口环境"
+    },
+    {
+      "id": "share-auth-privacy",
+      "reason": "需要平台环境、账号授权和人工确认"
+    }
+  ],
+  "findings": [],
+  "summary": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0
+  },
+  "coverage": {
+    "static_code": true,
+    "automated_checks": true,
+    "heuristic_checks": true,
+    "runtime_checks": false,
+    "visual_checks": false,
+    "real_device_checks": false,
+    "note": "未执行的检查不能视为通过；本报告不能证明页面在微信真机中可用。"
+  },
+  "next_steps": [
+    "静态规则未发现明显问题；仍需在微信开发者工具和真机走核心路径，不能将本报告当作通过证明。",
+    "如需运行视觉审查，请提供截图或接入视觉模型适配器；当前项目未内置该能力。"
+  ]
+}

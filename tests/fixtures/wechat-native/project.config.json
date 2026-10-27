@@ -1,0 +1,6 @@
+{
+  "miniprogramRoot": "./",
+  "appid": "touristappid",
+  "projectname": "mpux-audit-fixture",
+  "compileType": "miniprogram"
+}

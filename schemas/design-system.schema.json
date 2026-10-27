@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/mpux-pro/schemas/design-system.schema.json",
+  "title": "MPUX Pro Design System",
+  "description": "由 scripts/generate_design_system.py 生成的 MASTER.json 结构。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "generator",
+    "generated_at",
+    "project",
+    "stack",
+    "product",
+    "style",
+    "palette",
+    "typography",
+    "tokens",
+    "layouts",
+    "components",
+    "ux_rules",
+    "mini_program_rules",
+    "anti_patterns",
+    "stack_rules",
+    "conflicts",
+    "design_rationale",
+    "acceptance_criteria",
+    "sources",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "generator": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "const": "mini-program-ux-pro" },
+        "version": { "type": "string" }
+      }
+    },
+    "generated_at": { "type": "string" },
+    "project": {
+      "type": "object",
+      "required": ["name", "slug"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "slug": { "type": "string" }
+      }
+    },
+    "stack": {
+      "type": "object",
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "enum": ["wechat-native", "uni-app", "taro"] },
+        "label": { "type": "string" }
+      }
+    },
+    "product": {
+      "type": "object",
+      "required": ["id", "name", "match", "confidence", "summary", "target_users", "core_tasks"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^prod-" },
+        "name": { "type": "string" },
+        "match": { "enum": ["exact", "search"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "style": {
+      "type": "object",
+      "required": ["id", "name", "selection"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^style-" },
+        "selection": { "type": "string" }
+      }
+    },
+    "palette": {
+      "type": "object",
+      "required": ["id", "name", "mode", "colors", "contrast_checks"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^palette-" },
+        "mode": { "enum": ["light", "dark"] },
+        "colors": {
+          "type": "object",
+          "required": ["background", "surface", "text_primary", "text_secondary", "brand", "border", "error"],
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "typography": {
+      "type": "object",
+      "required": ["id", "name", "heading_stack", "body_stack"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^type-" }
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "required": ["colors", "typography", "spacing", "radius", "shadows", "motion", "sizes", "safe_area"],
+      "additionalProperties": true
+    },
+    "layouts": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/layout" } },
+    "components": { "type": "array", "items": { "$ref": "#/$defs/component" } },
+    "ux_rules": { "type": "array", "items": { "$ref": "#/$defs/rule" } },
+    "mini_program_rules": { "type": "array", "items": { "$ref": "#/$defs/programRule" } },
+    "anti_patterns": { "type": "array", "items": { "$ref": "#/$defs/antiPattern" } },
+    "stack_rules": { "type": "array", "items": { "$ref": "#/$defs/stackRule" } },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "title", "detail", "resolution"],
+        "properties": {
+          "severity": { "enum": ["P0", "P1", "P2", "P3"] }
+        }
+      }
+    },
+    "design_rationale": { "type": "array", "minItems": 1 },
+    "acceptance_criteria": { "type": "array", "minItems": 3 },
+    "sources": {
+      "type": "object",
+      "required": ["product", "style", "palette", "typography", "layouts", "ux_rules", "mini_program_rules", "anti_patterns"],
+      "additionalProperties": { "type": "array", "items": { "type": "string" } }
+    },
+    "limitations": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "layout": {
+      "type": "object",
+      "required": ["id", "page_type", "goal", "primary_regions", "action_order"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^layout-" }
+      }
+    },
+    "component": {
+      "type": "object",
+      "required": ["id", "name", "use_cases", "touch_target", "states"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^comp-" }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "required": ["id", "severity", "name", "recommendation", "how_to_check"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^ux-" },
+        "severity": { "enum": ["P0", "P1", "P2", "P3"] }
+      }
+    },
+    "programRule": {
+      "type": "object",
+      "required": ["id", "severity", "name", "recommendation", "verification_status"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^mp-" },
+        "severity": { "enum": ["P0", "P1", "P2", "P3"] }
+      }
+    },
+    "antiPattern": {
+      "type": "object",
+      "required": ["id", "severity", "name", "manifestation", "fix"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^anti-" },
+        "severity": { "enum": ["P0", "P1", "P2", "P3"] }
+      }
+    },
+    "stackRule": {
+      "type": "object",
+      "required": ["id", "severity", "guideline", "do", "don_t"],
+      "properties": {
+        "id": { "type": "string" },
+        "severity": { "enum": ["P0", "P1", "P2", "P3"] }
+      }
+    }
+  }
+}

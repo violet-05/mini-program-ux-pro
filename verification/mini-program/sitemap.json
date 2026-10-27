@@ -1,0 +1,9 @@
+{
+  "desc": "MPUX Pro runtime verification",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

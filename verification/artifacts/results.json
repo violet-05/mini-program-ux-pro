@@ -1,0 +1,248 @@
+{
+  "schema_version": "1.0.0",
+  "runner": "verification/devtools/verify.cjs",
+  "automator_version": "0.13.0",
+  "started_at": "2026-10-27T10:52:17.653Z",
+  "environment": {
+    "kind": "wechat-devtools-simulator",
+    "cli_path": "<cli.bat 的绝对路径>",
+    "project_path": "verification",
+    "automation_port": 9431,
+    "note": "仅开发者工具模拟器，不是真机；截图不支持客户端真机。"
+  },
+  "checks": [
+    {
+      "name": "开发者工具连接并读取系统信息",
+      "passed": true,
+      "detail": "3.17.4"
+    },
+    {
+      "name": "首页加载完成且进入正常状态",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "首页主标题可读取",
+      "passed": true,
+      "detail": "今晚，听见自己的节奏。"
+    },
+    {
+      "name": "继续播放按钮触摸尺寸 >= 44px",
+      "passed": true,
+      "detail": {
+        "width": 184,
+        "height": 45
+      }
+    },
+    {
+      "name": "自定义导航获取状态栏/胶囊信息",
+      "passed": true,
+      "detail": {
+        "statusBarHeight": 47,
+        "navContentHeight": 44,
+        "capsuleReserve": 102
+      }
+    },
+    {
+      "name": "播放器初始为暂停",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "播放器歌词初始展开",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "歌词可以收起",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "歌词可以重新展开",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "点击播放后状态切换为播放",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "播放按钮触摸尺寸 >= 44px",
+      "passed": true,
+      "detail": {
+        "width": 113.5875015258789,
+        "height": 58
+      }
+    },
+    {
+      "name": "收藏按钮状态切换",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "打开播放队列",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "关闭播放队列",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "自定义返回触摸尺寸 >= 44px",
+      "passed": true,
+      "detail": {
+        "width": 184,
+        "height": 45
+      }
+    },
+    {
+      "name": "自定义返回回到首页",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "错误状态可进入且有重试入口",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "错误状态重试后恢复推荐",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "空状态可进入且有下一步",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "空状态可以回到推荐",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "加载骨架状态可渲染",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "TabBar 切换至个人中心",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "运行期间无 console.error",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "运行期间无未捕获异常",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "01-home-normal.png",
+      "path": "verification/artifacts/01-home-normal.png",
+      "bytes": 80356,
+      "attempts": 1
+    },
+    {
+      "name": "02-player-initial.png",
+      "path": "verification/artifacts/02-player-initial.png",
+      "bytes": 89807,
+      "attempts": 1
+    },
+    {
+      "name": "03-player-playing.png",
+      "path": "verification/artifacts/03-player-playing.png",
+      "bytes": 89720,
+      "attempts": 1
+    },
+    {
+      "name": "04-player-queue.png",
+      "path": "verification/artifacts/04-player-queue.png",
+      "bytes": 65017,
+      "attempts": 1
+    },
+    {
+      "name": "05-home-error.png",
+      "path": "verification/artifacts/05-home-error.png",
+      "bytes": 55426,
+      "attempts": 1
+    },
+    {
+      "name": "09-home-recovered.png",
+      "path": "verification/artifacts/09-home-recovered.png",
+      "bytes": 80350,
+      "attempts": 1
+    },
+    {
+      "name": "06-home-empty.png",
+      "path": "verification/artifacts/06-home-empty.png",
+      "bytes": 54629,
+      "attempts": 1
+    },
+    {
+      "name": "07-home-loading.png",
+      "path": "verification/artifacts/07-home-loading.png",
+      "bytes": 36161,
+      "attempts": 1
+    },
+    {
+      "name": "08-profile.png",
+      "path": "verification/artifacts/08-profile.png",
+      "bytes": 98838,
+      "attempts": 1
+    }
+  ],
+  "console": [
+    {
+      "type": "warn",
+      "args": [
+        "wx.getSystemInfoSync is deprecated.Please use wx.getSystemSetting/wx.getAppAuthorizeSetting/wx.getDeviceInfo/wx.getWindowInfo/wx.getAppBaseInfo instead."
+      ]
+    },
+    {
+      "type": "info",
+      "args": [
+        "Lazy code loading is enabled. Only injecting required components."
+      ]
+    },
+    {
+      "type": "warn",
+      "args": [
+        "wx.getSystemInfoSync is deprecated.Please use wx.getSystemSetting/wx.getAppAuthorizeSetting/wx.getDeviceInfo/wx.getWindowInfo/wx.getAppBaseInfo instead."
+      ]
+    }
+  ],
+  "exceptions": [],
+  "status": "passed",
+  "connection_mode": "connect-after-cli-auto",
+  "devtools_cli_output": "- initialize\n\n(node:21324) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `微信开发者工具 --trace-deprecation ...` to show where the warning was created)\n✔ IDE server has started, listening on http://127.0.0.1:52952\n- preparing\n- Fetching AppID () permissions\n✔ Using AppID: touristappid\n✔ auto",
+  "system_info": {
+    "SDKVersion": "3.17.4",
+    "windowWidth": 390,
+    "windowHeight": 671,
+    "screenWidth": 390,
+    "screenHeight": 844,
+    "statusBarHeight": 47,
+    "safeArea": {
+      "top": 47,
+      "left": 0,
+      "right": 390,
+      "bottom": 810,
+      "width": 390,
+      "height": 763
+    },
+    "platform": "devtools"
+  },
+  "console_error_count": 0,
+  "finished_at": "2026-10-27T10:53:18.458Z",
+  "evidence_note": "Local absolute paths were sanitized for public release; checks and screenshots are unchanged."
+}

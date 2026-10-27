@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/mpux-pro/schemas/review-report.schema.json",
+  "title": "MPUX Pro Static Review Report",
+  "description": "audit_mini_program.py --json 的静态审查报告结构。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "report_type",
+    "generator",
+    "project",
+    "generated_at",
+    "environment",
+    "scope",
+    "executed_checks",
+    "skipped_checks",
+    "findings",
+    "summary",
+    "coverage",
+    "next_steps"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "report_type": { "const": "static-mini-program-review" },
+    "generator": { "type": "object" },
+    "project": {
+      "type": "object",
+      "required": ["name", "path", "stack", "stack_label"],
+      "properties": {
+        "stack": { "enum": ["wechat-native", "uni-app", "taro", "browser-prototype", "unknown"] }
+      }
+    },
+    "generated_at": { "type": "string" },
+    "environment": {
+      "type": "object",
+      "required": ["mode", "runtime", "browser_preview", "wechat_devtools", "real_device", "visual_model"],
+      "properties": {
+        "mode": { "const": "static-code-review" }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "required": ["files_scanned", "pages_declared", "pages_found"],
+      "properties": {
+        "files_scanned": { "type": "integer", "minimum": 0 },
+        "pages_declared": { "type": "integer", "minimum": 0 },
+        "pages_found": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "executed_checks": { "type": "array" },
+    "skipped_checks": { "type": "array", "minItems": 1 },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "category", "title", "evidence", "why", "recommendation", "rule_ids", "verification", "confidence"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^F-[0-9]{3}$" },
+          "severity": { "enum": ["P0", "P1", "P2", "P3"] },
+          "verification": { "enum": ["automated", "rule-assisted", "needs-manual"] },
+          "confidence": { "enum": ["high", "medium", "low"] },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["file", "line"],
+              "properties": {
+                "file": { "type": "string" },
+                "line": { "type": "integer", "minimum": 1 },
+                "excerpt": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["P0", "P1", "P2", "P3"],
+      "properties": {
+        "P0": { "type": "integer", "minimum": 0 },
+        "P1": { "type": "integer", "minimum": 0 },
+        "P2": { "type": "integer", "minimum": 0 },
+        "P3": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["static_code", "runtime_checks", "visual_checks", "real_device_checks", "note"],
+      "properties": {
+        "static_code": { "const": true },
+        "runtime_checks": { "const": false },
+        "visual_checks": { "const": false },
+        "real_device_checks": { "const": false }
+      }
+    },
+    "next_steps": { "type": "array", "minItems": 1 }
+  }
+}

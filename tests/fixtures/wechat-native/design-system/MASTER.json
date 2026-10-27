@@ -1,0 +1,16 @@
+{
+  "project": { "name": "Fixture Design System" },
+  "generated_at": "2026-10-27T00:00:00+00:00",
+  "tokens": {
+    "colors": {
+      "background": "#FFF8F3",
+      "surface": "#FFFFFF",
+      "text_primary": "#241C17",
+      "text_secondary": "#6F625A",
+      "brand": "#A83A24",
+      "accent": "#1F6E5A",
+      "border": "#E9DCD3",
+      "error": "#B3261E"
+    }
+  }
+}

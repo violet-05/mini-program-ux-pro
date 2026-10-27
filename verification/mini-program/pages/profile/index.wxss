@@ -1,0 +1,130 @@
+.profile-page {
+  padding-top: 40rpx;
+}
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 50%;
+  background: #252919;
+  color: #D7E94C;
+  color: var(--mpux-color-brand, #D7E94C);
+  font-size: 42rpx;
+  font-weight: 600;
+}
+
+.identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name {
+  display: block;
+  margin-bottom: 4rpx;
+  font-size: 42rpx;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.member-card {
+  margin-top: 44rpx;
+  padding: 32rpx;
+  background: linear-gradient(155deg, #252919 0%, #171A1F 58%, #2C3037 100%);
+}
+
+.member-kicker {
+  display: block;
+  color: #D7E94C;
+  color: var(--mpux-color-brand, #D7E94C);
+  font-size: 24rpx;
+  font-weight: 600;
+  letter-spacing: 4rpx;
+}
+
+.member-title {
+  display: block;
+  max-width: 560rpx;
+  margin-top: 16rpx;
+  font-size: 40rpx;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.member-copy {
+  display: block;
+  max-width: 580rpx;
+  margin-top: 16rpx;
+  color: #B2B6BE;
+  color: var(--mpux-color-text-secondary, #B2B6BE);
+  font-size: 28rpx;
+  line-height: 1.7;
+}
+
+.member-stats {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 32rpx;
+}
+
+.stat {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-value {
+  display: block;
+  color: #F5F1E8;
+  color: var(--mpux-color-text-primary, #F5F1E8);
+  font-size: 38rpx;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.stat-label {
+  display: block;
+  margin-top: 4rpx;
+  color: #B2B6BE;
+  color: var(--mpux-color-text-secondary, #B2B6BE);
+  font-size: 24rpx;
+  line-height: 1.4;
+}
+
+.settings-list {
+  margin-top: 20rpx;
+  border-top: 1rpx solid #2C3037;
+  border-color: var(--mpux-color-border, #2C3037);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 104rpx;
+  border-bottom: 1rpx solid #2C3037;
+  border-color: var(--mpux-color-border, #2C3037);
+}
+
+.settings-label {
+  font-size: 28rpx;
+}
+
+.settings-value {
+  color: #B2B6BE;
+  color: var(--mpux-color-text-secondary, #B2B6BE);
+  font-size: 24rpx;
+}
+
+.footnote {
+  margin-top: 48rpx;
+  padding-bottom: 24rpx;
+}

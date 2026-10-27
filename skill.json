@@ -1,0 +1,48 @@
+{
+  "name": "mini-program-ux-pro",
+  "displayName": "Mini Program UX Pro（微信小程序设计智能）",
+  "description": "面向微信小程序的中文 UI/UX 设计智能 Skill：本地检索、Master + 页面覆盖设计系统生成、静态审查，以及原生/uni-app/Taro 平台规则。",
+  "version": "1.0.0",
+  "author": "Mini Program UX Pro Contributors",
+  "license": "MIT",
+  "entry": "SKILL.md",
+  "requirements": {
+    "python": ">=3.10",
+    "network": false,
+    "apiKey": false
+  },
+  "capabilities": [
+    "local-search",
+    "design-system-generation",
+    "master-page-overrides",
+    "static-mini-program-audit",
+    "wechat-native-rules",
+    "uni-app-rules",
+    "taro-rules",
+    "data-validation",
+    "skill-validation",
+    "installation-smoke-test",
+    "devtools-cli-detection",
+    "devtools-simulator-screenshots",
+    "devtools-interaction-verification"
+  ],
+  "keywords": [
+    "微信小程序",
+    "小程序设计",
+    "UI/UX",
+    "设计系统",
+    "微信原生",
+    "uni-app",
+    "Taro",
+    "AI Skill"
+  ],
+  "install": "python scripts/install_skill.py --project",
+  "optionalRuntimeVerification": {
+    "node": ">=18",
+    "requiresUserEnabledServicePort": true,
+    "realDevice": false,
+    "screenshots": "simulator-only"
+  },
+  "repository": "https://github.com/violet-05/mini-program-ux-pro",
+  "homepage": "https://github.com/violet-05/mini-program-ux-pro#readme"
+}

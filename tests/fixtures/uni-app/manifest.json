@@ -1,0 +1,6 @@
+{
+  "name": "mpux-uni-fixture",
+  "mp-weixin": {
+    "appid": "touristappid"
+  }
+}

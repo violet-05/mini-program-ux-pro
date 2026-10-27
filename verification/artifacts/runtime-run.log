@@ -1,0 +1,43 @@
+PASS 开发者工具连接并读取系统信息 — 3.17.4
+PASS 首页加载完成且进入正常状态
+PASS 继续播放按钮触摸尺寸 >= 44px — [object Object]
+PASS 自定义导航获取状态栏/胶囊信息 — [object Object]
+PASS 播放器初始为暂停
+PASS 播放器歌词初始展开
+PASS 歌词可以收起
+PASS 歌词可以重新展开
+PASS 点击播放后状态切换为播放
+PASS 播放按钮触摸尺寸 >= 44px — [object Object]
+PASS 收藏按钮状态切换
+PASS 打开播放队列
+PASS 关闭播放队列
+PASS 自定义返回触摸尺寸 >= 44px — [object Object]
+PASS 自定义返回回到首页
+PASS 错误状态可进入且有重试入口
+PASS 错误状态重试后恢复推荐
+PASS 空状态可进入且有下一步
+PASS 空状态可以回到推荐
+PASS 加载骨架状态可渲染
+PASS TabBar 切换至个人中心
+PASS 运行期间无 console.error — 
+PASS 运行期间无未捕获异常 — 
+{
+  "status": "passed",
+  "checks": 24,
+  "passed": 24,
+  "screenshots": [
+    "verification/artifacts/01-home-normal.png",
+    "verification/artifacts/02-player-initial.png",
+    "verification/artifacts/03-player-playing.png",
+    "verification/artifacts/04-player-queue.png",
+    "verification/artifacts/05-home-error.png",
+    "verification/artifacts/09-home-recovered.png",
+    "verification/artifacts/06-home-empty.png",
+    "verification/artifacts/07-home-loading.png",
+    "verification/artifacts/08-profile.png"
+  ],
+  "results": "verification/artifacts/results.json",
+  "error": null
+}
+开发者工具保持打开，自动化连接已断开。
+

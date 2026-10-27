@@ -1,0 +1,51 @@
+<view class="page profile-page">
+  <view class="profile-head">
+    <view class="avatar" aria-hidden="true">L</view>
+    <view class="identity">
+      <text class="profile-name">林屿</text>
+      <text class="muted">夜航会员 · 连续收听 7 天</text>
+    </view>
+  </view>
+
+  <view class="member-card card">
+    <text class="member-kicker">MEMBER / 07</text>
+    <text class="member-title">把夜晚留一点给自己</text>
+    <text class="member-copy">本月已收听 12 小时 40 分。会员权益与播放记录都保存在你的账户里。</text>
+    <view class="member-stats">
+      <view class="stat">
+        <text class="stat-value">12h</text>
+        <text class="stat-label">本月收听</text>
+      </view>
+      <view class="stat">
+        <text class="stat-value">7</text>
+        <text class="stat-label">连续天数</text>
+      </view>
+      <view class="stat">
+        <text class="stat-value">24</text>
+        <text class="stat-label">收藏曲目</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">账户与服务</text>
+    <view class="settings-list">
+      <view class="settings-row">
+        <text class="settings-label">播放与音质</text>
+        <text class="settings-value">标准</text>
+      </view>
+      <view class="settings-row">
+        <text class="settings-label">隐私与授权</text>
+        <text class="settings-value">仅本机</text>
+      </view>
+      <view class="settings-row">
+        <text class="settings-label">帮助与反馈</text>
+        <text class="settings-value">示例未接入</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="footnote">
+    <text class="muted">本示例用于 MPUX Pro 运行时验收，不包含真实账户或音频服务。</text>
+  </view>
+</view>

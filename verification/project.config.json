@@ -1,0 +1,21 @@
+{
+  "description": "MPUX Pro 微信开发者工具运行时验收示例",
+  "miniprogramRoot": "mini-program/",
+  "compileType": "miniprogram",
+  "appid": "touristappid",
+  "projectname": "mpux-runtime-verification",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": false,
+    "coverView": true,
+    "showShadowRootInWxmlPanel": true,
+    "autoAudits": false,
+    "checkSiteMap": false
+  },
+  "packOptions": {
+    "ignore": []
+  }
+}

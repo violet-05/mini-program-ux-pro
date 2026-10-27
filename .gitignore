@@ -1,0 +1,39 @@
+# Python / tooling
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Local generated / temporary
+tmp/
+tmp-*/
+design-system-tmp/
+review-before.json
+review-after.json
+review.json
+validation.json
+*.log
+!verification/artifacts/*.log
+
+# Node (skill metadata only)
+node_modules/
+npm-debug.log*
+
+# Packaging
+dist/
+build/
+*.egg-info/

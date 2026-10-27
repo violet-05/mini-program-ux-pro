@@ -1,0 +1,15 @@
+{
+  "pages": [
+    { "path": "pages/index/index", "style": { "navigationBarTitleText": "首页" } },
+    { "path": "pages/about/index", "style": { "navigationBarTitleText": "关于" } }
+  ],
+  "globalStyle": {
+    "navigationBarTitleText": "Fixture"
+  },
+  "tabBar": {
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页" },
+      { "pagePath": "pages/about/index", "text": "关于" }
+    ]
+  }
+}

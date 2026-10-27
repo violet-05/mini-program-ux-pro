@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/mpux-pro/schemas/search-result.schema.json",
+  "title": "MPUX Pro Search Result",
+  "description": "search.py --json 的输出结构。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["query", "source", "count", "results"],
+  "properties": {
+    "query": { "type": "string", "minLength": 1 },
+    "domain": { "type": "string" },
+    "stack": { "type": "string", "enum": ["wechat-native", "uni-app", "taro"] },
+    "label": { "type": "string" },
+    "stack_label": { "type": "string" },
+    "source": { "type": "string" },
+    "count": { "type": "integer", "minimum": 0 },
+    "auto_detected": { "type": "boolean" },
+    "runner_up_domain": { "type": ["string", "null"] },
+    "suggestions": { "type": "array", "items": { "type": "string" } },
+    "notice": { "type": "string" },
+    "product_context": {
+      "type": ["object", "null"],
+      "properties": {
+        "product_id": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "score", "matched_terms", "matched_fields", "record", "source"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string" },
+          "score": { "type": "number", "minimum": 0 },
+          "matched_terms": { "type": "array", "items": { "type": "string" } },
+          "matched_fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["field", "terms", "count"],
+              "properties": {
+                "field": { "type": "string" },
+                "terms": { "type": "array", "items": { "type": "string" } },
+                "count": { "type": "integer", "minimum": 0 }
+              }
+            }
+          },
+          "reasons": { "type": "array", "items": { "type": "string" } },
+          "record": { "type": "object" },
+          "source": { "type": "string" },
+          "domain": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+<div class="page" onclick="go">
+  <div class="title" style="color: #333333">首页</div>
+  <view wx:for="{{items}}">
+    <image src="{{item.image}}" />
+  </view>
+  <view class="icon-btn" bindtap="go">+</view>
+  <view class="buy-bar">立即购买</view>
+</div>

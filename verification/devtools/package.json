@@ -1,0 +1,12 @@
+{
+  "name": "mpux-devtools-verification",
+  "version": "1.0.0",
+  "private": true,
+  "description": "可选的微信开发者工具运行时验收依赖，不属于 Skill 核心运行依赖。",
+  "scripts": {
+    "verify": "node verify.cjs"
+  },
+  "devDependencies": {
+    "miniprogram-automator": "0.13.0"
+  }
+}

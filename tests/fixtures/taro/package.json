@@ -1,0 +1,8 @@
+{
+  "name": "mpux-taro-fixture",
+  "version": "1.0.0",
+  "dependencies": {
+    "@tarojs/taro": "4.0.0",
+    "@tarojs/components": "4.0.0"
+  }
+}

@@ -1,0 +1,63 @@
+/* MPUX Pro design tokens - generated from local knowledge base. */
+/* Do not treat CSS custom properties as universally supported; verify the target base library. */
+
+page {
+  --mpux-color-background: #0D0F12;
+  --mpux-color-surface: #171A1F;
+  --mpux-color-surface-alt: #161915;
+  --mpux-color-text-primary: #F5F1E8;
+  --mpux-color-text-secondary: #B2B6BE;
+  --mpux-color-brand: #D7E94C;
+  --mpux-color-on-brand: #111111;
+  --mpux-color-brand-soft: #252919;
+  --mpux-color-accent: #8B7CFF;
+  --mpux-color-on-accent: #111111;
+  --mpux-color-border: #2C3037;
+  --mpux-color-divider: #24282E;
+  --mpux-color-success: #5BD98A;
+  --mpux-color-warning: #F0B429;
+  --mpux-color-error: #FF7D7D;
+  --mpux-color-on-error: #111111;
+  --mpux-color-link: #D7E94C;
+  --mpux-color-disabled: #4C4E53;
+  --mpux-color-overlay: rgba(12, 14, 18, 0.48);
+  --mpux-font-caption: 24rpx;
+  --mpux-font-meta: 28rpx;
+  --mpux-font-body: 32rpx;
+  --mpux-font-body-lg: 36rpx;
+  --mpux-font-title: 44rpx;
+  --mpux-font-display: 52rpx;
+  --mpux-font-family-heading: -apple-system,BlinkMacSystemFont,PingFang SC,Hiragino Sans GB,Microsoft YaHei,sans-serif;
+  --mpux-font-family-body: -apple-system,BlinkMacSystemFont,PingFang SC,Hiragino Sans GB,Microsoft YaHei,sans-serif;
+  --mpux-font-family-numeric: SF Pro Display,Helvetica Neue,Arial,sans-serif;
+  --mpux-space-1: 8rpx;
+  --mpux-space-2: 16rpx;
+  --mpux-space-3: 24rpx;
+  --mpux-space-4: 32rpx;
+  --mpux-space-5: 48rpx;
+  --mpux-space-6: 64rpx;
+  --mpux-space-7: 96rpx;
+  --mpux-space-page-gutter: 32rpx;
+  --mpux-space-section-gap: 64rpx;
+  --mpux-space-card-gap: 24rpx;
+  --mpux-space-content-max-width: 1120rpx;
+  --mpux-radius-sm: 0rpx;
+  --mpux-radius-md: 6rpx;
+  --mpux-radius-lg: 10rpx;
+  --mpux-radius-pill: 999rpx;
+  --mpux-shadow-card: none;
+  --mpux-shadow-raised: 0 12rpx 32rpx rgba(0, 0, 0, 0.45);
+  --mpux-motion-fast: 120ms;
+  --mpux-motion-normal: 180ms;
+  --mpux-motion-slow: 240ms;
+  --mpux-easing-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --mpux-touch-target: 88rpx;
+  --mpux-button-height: 88rpx;
+  --mpux-input-height: 88rpx;
+  --mpux-tabbar-height: 100rpx;
+  --mpux-nav-content-height: 88rpx;
+  --mpux-safe-bottom: env(safe-area-inset-bottom);
+}
+
+/* Content wrapper example: */
+/* .mpux-page { padding-bottom: calc(var(--mpux-bottom-bar-height, 112rpx) + env(safe-area-inset-bottom)); } */

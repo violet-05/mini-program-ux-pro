@@ -1,0 +1,40 @@
+{
+  "name": "mini-program-ux-pro",
+  "version": "1.0.0",
+  "private": false,
+  "description": "微信小程序审美与交互设计智能 Skill：本地设计知识检索、设计系统生成、静态审查与验证工作流。",
+  "license": "MIT",
+  "scripts": {
+    "search": "python scripts/search.py",
+    "design-system": "python scripts/generate_design_system.py",
+    "audit": "python scripts/audit_mini_program.py --path .",
+    "validate:data": "python scripts/validate_data.py",
+    "validate:skill": "python scripts/validate_skill.py",
+    "validate": "python scripts/validate_project.py --path .",
+    "test": "python -m unittest discover -s tests -v",
+    "install:project": "python scripts/install_skill.py --project",
+    "verify:runtime": "python scripts/devtools_adapter.py run --project verification"
+  },
+  "keywords": [
+    "wechat",
+    "mini-program",
+    "mini-program-ux",
+    "ui",
+    "ux",
+    "design-system",
+    "ai-skill",
+    "wechat-native",
+    "uni-app",
+    "taro"
+  ],
+  "author": "Mini Program UX Pro Contributors",
+  "python": ">=3.10",
+  "homepage": "https://github.com/violet-05/mini-program-ux-pro#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/violet-05/mini-program-ux-pro.git"
+  },
+  "bugs": {
+    "url": "https://github.com/violet-05/mini-program-ux-pro/issues"
+  }
+}

@@ -11,6 +11,7 @@ from __future__ import annotations
 import csv
 import difflib
 import math
+import os
 import re
 import sys
 import unicodedata
@@ -417,6 +418,14 @@ def configure_utf8_stdio() -> None:
                 stream.reconfigure(encoding="utf-8", errors="replace")
             except (AttributeError, ValueError):
                 pass
+
+
+def utf8_subprocess_env() -> dict[str, str]:
+    """强制 Python 子进程以 UTF-8 输出，避免继承 Windows 默认代码页。"""
+    env = dict(os.environ)
+    env["PYTHONIOENCODING"] = "utf-8"
+    env["PYTHONUTF8"] = "1"
+    return env
 
 
 def _normalise(text: Any) -> str:

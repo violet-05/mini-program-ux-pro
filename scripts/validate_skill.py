@@ -12,6 +12,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from mpux_core import configure_utf8_stdio, utf8_subprocess_env
+
 ROOT = Path(__file__).resolve().parent.parent
 
 REQUIRED_FILES = [
@@ -247,6 +249,7 @@ def _check_commands(root: Path, errors: list[str], warnings: list[str]) -> int:
                 text=True,
                 encoding="utf-8",
                 errors="replace",
+                env=utf8_subprocess_env(),
                 timeout=20,
             )
         except (OSError, subprocess.TimeoutExpired) as exc:
@@ -377,6 +380,7 @@ def validate(root: Path = ROOT) -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    configure_utf8_stdio()
     parser = argparse.ArgumentParser(description="验证 MPUX Pro Skill 文件与命令")
     parser.add_argument("--root", default=str(ROOT), help="Skill 根目录，默认项目根目录")
     parser.add_argument("--json", action="store_true", help="输出 JSON")

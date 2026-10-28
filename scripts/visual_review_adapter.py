@@ -15,6 +15,8 @@ import uuid
 from pathlib import Path
 from typing import Any, Protocol
 
+from mpux_core import configure_utf8_stdio
+
 SCHEMA_VERSION = "1.0.0"
 ENVIRONMENTS = {"browser", "wechat-devtools", "ios-device", "android-device", "unknown"}
 SEVERITIES = {"P0", "P1", "P2", "P3"}
@@ -228,6 +230,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    configure_utf8_stdio()
     parser = build_parser()
     args = parser.parse_args(argv)
     if not getattr(args, "command", None):

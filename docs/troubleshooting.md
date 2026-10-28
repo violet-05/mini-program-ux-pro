@@ -22,6 +22,22 @@ py -3 --version
   ```
 - 不把 PowerShell 的 `>` 与 Python 重定向混用在不同编码下。
 
+默认 GBK 控制台下可显式设置：
+
+```bash
+# Git Bash
+export PYTHONUTF8=1
+export PYTHONIOENCODING=utf-8
+```
+
+```powershell
+# PowerShell
+$env:PYTHONUTF8 = "1"
+$env:PYTHONIOENCODING = "utf-8"
+```
+
+也可以用 `python -X utf8 scripts/validate_project.py --path .` 运行单次命令。项目 CI 包含 GBK stdio 回归测试，所有 CLI 的 stdout/stderr 应为 UTF-8。
+
 ## 检索没有结果
 
 - 检查查询是否为空/全是标点；

@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Data validation
+        run: python scripts/validate_data.py
+      - name: Skill validation
+        run: python scripts/validate_skill.py
+      - name: Project self-check
+        run: python scripts/validate_project.py --path .
+
+  gbk-stdio:
+    name: GBK stdio regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: CLIs must emit UTF-8 with GBK stdio
+        env:
+          PYTHONIOENCODING: gbk:replace
+        run: |
+          python -m unittest discover -s tests -p "test_encoding.py" -v
+          python scripts/validate_project.py --path .

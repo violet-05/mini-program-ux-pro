@@ -14,6 +14,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from mpux_core import configure_utf8_stdio
+
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 ID_PATTERN = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$")
@@ -568,6 +570,7 @@ def validate(data_dir: Path = DATA_DIR) -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    configure_utf8_stdio()
     parser = argparse.ArgumentParser(description="验证 MPUX Pro 设计知识库")
     parser.add_argument("--data-dir", default=str(DATA_DIR), help="数据目录，默认 data/")
     parser.add_argument("--json", action="store_true", help="输出 JSON")

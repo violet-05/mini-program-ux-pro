@@ -15,10 +15,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+from mpux_core import configure_utf8_stdio, utf8_subprocess_env
+
 ROOT = Path(__file__).resolve().parent.parent
 SKILL_NAME = "mini-program-ux-pro"
 IGNORE = shutil.ignore_patterns(
     ".git",
+    ".github",
     ".claude",
     "__pycache__",
     ".pytest_cache",
@@ -97,6 +100,7 @@ def install(target_base: Path, *, force: bool = False, check_only: bool = False)
         text=True,
         encoding="utf-8",
         errors="replace",
+        env=utf8_subprocess_env(),
         timeout=30,
     )
     if result.returncode != 0:
@@ -130,6 +134,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    configure_utf8_stdio()
     parser = build_parser()
     args = parser.parse_args(argv)
     try:

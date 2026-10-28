@@ -81,6 +81,7 @@ class SkillValidationTests(unittest.TestCase):
             self.assertTrue((target / "data" / "products.csv").exists())
             self.assertEqual(result["smoke_test"]["top_result"], "comp-product-card")
             self.assertFalse((target / "verification" / "devtools" / "node_modules").exists())
+            self.assertFalse((target / ".github").exists())
             # 安装后的 Skill 可以独立执行检索
             process = run_script(
                 "search.py",

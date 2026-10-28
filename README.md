@@ -277,6 +277,8 @@ python -m unittest discover -s tests -v
 python scripts/validate_project.py --path .
 ```
 
+Windows 控制台建议设置 `PYTHONUTF8=1`；所有 CLI 也会主动把 stdout/stderr 切到 UTF-8。CI 在 Ubuntu/Windows 与 GBK stdio 环境下运行回归测试。
+
 实际验收结果、五类产品差异、24 项 DevTools 模拟器检查和未验证项见 [验收报告](docs/acceptance-report.md)。运行时截图与机器可读结果在 [verification/artifacts](verification/artifacts/)。
 
 ## 未来路线

@@ -2,6 +2,20 @@
 
 All notable changes to Mini Program UX Pro are documented here.
 
+## [Unreleased]
+
+### Fixed
+
+- 统一 `validate_data`、`validate_skill`、`validate_project`、`install_skill`、`visual_review_adapter`、`devtools_adapter` 的 UTF-8 输出。
+- 修复 Windows 默认 GBK 控制台下 `test_cli_build_and_validate` 失败，以及 `validate_project` 打印数据警告时抛出 `UnicodeEncodeError`。
+- 验证器与安装器调用 Python 子进程时强制 UTF-8 环境，避免继承 Windows 默认代码页。
+- 安装 Skill 时排除 `.github`。
+
+### Added
+
+- `tests/test_encoding.py`：在 `PYTHONIOENCODING=gbk` 下回归所有 CLI 的 UTF-8 输出。
+- GitHub Actions CI：Ubuntu/Windows × Python 3.10/3.12，以及独立 GBK stdio 回归任务。
+
 ## [1.0.0] - 2026-10-27
 
 ### Added

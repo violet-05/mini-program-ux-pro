@@ -18,6 +18,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from mpux_core import configure_utf8_stdio
+
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SUITE = ROOT / "verification" / "devtools" / "verify.cjs"
 DEFAULT_PROJECT = ROOT / "verification"
@@ -226,6 +228,7 @@ def _print_status(payload: dict[str, Any], as_json: bool) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    configure_utf8_stdio()
     parser = build_parser()
     args = parser.parse_args(argv)
     cli_path = find_cli(args.cli)

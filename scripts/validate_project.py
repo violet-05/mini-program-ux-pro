@@ -13,6 +13,8 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from mpux_core import configure_utf8_stdio, utf8_subprocess_env
+
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -24,6 +26,7 @@ def _run(command: list[str], cwd: Path, timeout: int = 60) -> subprocess.Complet
         text=True,
         encoding="utf-8",
         errors="replace",
+        env=utf8_subprocess_env(),
         timeout=timeout,
     )
 
@@ -287,6 +290,7 @@ def validate_project(root: Path = ROOT) -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    configure_utf8_stdio()
     parser = argparse.ArgumentParser(description="MPUX Pro 项目级自检")
     parser.add_argument("--path", default=str(ROOT), help="Skill 项目根目录，默认当前项目")
     parser.add_argument("--json", action="store_true", help="输出 JSON")

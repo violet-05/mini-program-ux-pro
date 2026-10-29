@@ -36,7 +36,9 @@
     "Taro",
     "AI Skill"
   ],
-  "install": "python scripts/install_skill.py --project",
+  "install": "python mpux.py install",
+  "cli": "mpux.py",
+  "diagnose": "python mpux.py doctor",
   "optionalRuntimeVerification": {
     "node": ">=18",
     "requiresUserEnabledServicePort": true,

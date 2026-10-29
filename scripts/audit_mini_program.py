@@ -10,17 +10,23 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
 from mpux_core import configure_utf8_stdio
 
 VERSION = "1.0.0"
 SKIP_DIRS = {
     ".git",
+    ".claude",
+    ".qoder",
+    ".cursor",
+    ".codex",
+    ".venv",
     ".idea",
     ".vscode",
     ".gradle",
@@ -91,6 +97,42 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
+def _strip_trailing_commas(text: str) -> str:
+    """删除字符串外的尾逗号，避免破坏值中的 ,} 或 ,] 。"""
+    result: list[str] = []
+    index = 0
+    in_string = False
+    escape = False
+    length = len(text)
+    while index < length:
+        char = text[index]
+        if in_string:
+            result.append(char)
+            if escape:
+                escape = False
+            elif char == "\\":
+                escape = True
+            elif char == '"':
+                in_string = False
+            index += 1
+            continue
+        if char == '"':
+            in_string = True
+            result.append(char)
+            index += 1
+            continue
+        if char == ",":
+            lookahead = index + 1
+            while lookahead < length and text[lookahead] in " \t\r\n":
+                lookahead += 1
+            if lookahead < length and text[lookahead] in "}]":
+                index += 1
+                continue
+        result.append(char)
+        index += 1
+    return "".join(result)
+
+
 def _strip_json_comments(text: str) -> str:
     result: list[str] = []
     index = 0
@@ -131,9 +173,7 @@ def _strip_json_comments(text: str) -> str:
                 continue
         result.append(char)
         index += 1
-    cleaned = "".join(result)
-    cleaned = re.sub(r",\s*([}\]])", r"\1", cleaned)
-    return cleaned
+    return _strip_trailing_commas("".join(result))
 
 
 def _load_jsonc(path: Path) -> Any:
@@ -150,19 +190,18 @@ def _excerpt(line: str, limit: int = 180) -> str:
     return value[:limit] + ("…" if len(value) > limit else "")
 
 
-def _is_skipped(path: Path, root: Path) -> bool:
-    try:
-        relative = path.relative_to(root)
-    except ValueError:
-        return True
-    return any(part in SKIP_DIRS for part in relative.parts)
+def _walk_project_files(root: Path) -> Iterator[Path]:
+    for directory, subdirectories, names in os.walk(root):
+        subdirectories[:] = sorted(name for name in subdirectories if name not in SKIP_DIRS)
+        for name in sorted(names):
+            path = Path(directory) / name
+            if not path.is_symlink() and path.is_file():
+                yield path
 
 
 def _find_files(root: Path) -> list[Path]:
     files: list[Path] = []
-    for path in root.rglob("*"):
-        if not path.is_file() or _is_skipped(path, root):
-            continue
+    for path in _walk_project_files(root):
         if path.suffix.casefold() not in TEXT_EXTENSIONS:
             continue
         try:
@@ -171,8 +210,8 @@ def _find_files(root: Path) -> list[Path]:
         except OSError:
             continue
         files.append(path)
-        if len(files) >= 4000:
-            break
+        if len(files) > 4000:
+            raise AuditError("待审查源码超过 4000 个文件；请用 --path 指向具体小程序目录，避免不完整审查。")
     return sorted(files)
 
 
@@ -224,7 +263,7 @@ def _detect_stack(root: Path) -> tuple[str, str, Path]:
         return "uni-app", "检测到 pages.json", root / "src" if (root / "src" / "pages.json").exists() else root
     if (root / "app.config.ts").exists() or (root / "app.config.js").exists():
         return "taro", "检测到 app.config.*", root
-    if list(root.rglob("*.html")):
+    if any(path.suffix.casefold() == ".html" for path in _walk_project_files(root)):
         return "browser-prototype", "仅检测到浏览器 HTML，未发现小程序工程配置", root
     return "unknown", "未发现 app.json、pages.json、app.config 或 @tarojs/@dcloudio 依赖", root
 
@@ -313,7 +352,9 @@ def _page_candidates(project: dict[str, Any], page: str) -> list[Path]:
     return paths
 
 
-def _load_project(path: Path) -> dict[str, Any]:
+def _load_project(
+    path: Path, design_system_path: Path | None = None
+) -> dict[str, Any]:
     root = path.resolve()
     if not root.exists():
         raise AuditError(f"项目路径不存在：{path}")
@@ -347,32 +388,73 @@ def _load_project(path: Path) -> dict[str, Any]:
         page: [candidate for candidate in candidates if candidate.exists()]
         for page, candidates in project["page_files"].items()
     }
-    project["design_system"] = _find_design_system(root)
+    project["design_system"] = _find_design_system(root, design_system_path)
+    if design_system_path is not None and project["design_system"] is None:
+        raise AuditError(
+            f"指定设计系统不存在或不是有效 MASTER.json：{design_system_path}"
+        )
     return project
 
 
-def _find_design_system(root: Path) -> dict[str, Any] | None:
-    candidates = [root / "design-system" / "MASTER.json"]
-    design_root = root / "design-system"
-    if design_root.exists():
-        candidates.extend(sorted(design_root.glob("*/MASTER.json")))
+def _find_design_system(
+    root: Path, explicit: Path | None = None
+) -> dict[str, Any] | None:
+    if explicit is not None:
+        explicit = explicit.expanduser().resolve()
+        if explicit.is_dir():
+            candidates = [
+                explicit / "MASTER.json",
+                explicit / "design-system" / "MASTER.json",
+                *sorted((explicit / "design-system").glob("*/MASTER.json")),
+            ]
+        else:
+            candidates = [explicit]
+    else:
+        candidates = []
+        for base in [root, *list(root.parents)[:2]]:
+            design_root = base / "design-system"
+            candidates.append(design_root / "MASTER.json")
+            if design_root.exists():
+                candidates.extend(sorted(design_root.glob("*/MASTER.json")))
+    seen: set[Path] = set()
     for candidate in candidates:
-        if not candidate.exists():
+        candidate = candidate.resolve()
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        if not candidate.is_file():
             continue
         try:
-            payload = json.loads(candidate.read_text(encoding="utf-8-sig", errors="replace"))
-        except (json.JSONDecodeError, OSError):
-            continue
+            payload = json.loads(candidate.read_text(encoding="utf-8-sig"))
+        except (ValueError, OSError) as exc:
+            raise AuditError(f"设计系统无法读取：{candidate}；{exc}") from exc
+        if not isinstance(payload, dict):
+            raise AuditError(f"设计系统根节点必须是 JSON 对象：{candidate}")
+        for field in ("project", "tokens"):
+            if not isinstance(payload.get(field), dict):
+                raise AuditError(f"设计系统 {field} 必须是对象：{candidate}")
+        name = payload["project"].get("name")
+        if not isinstance(name, str) or not name.strip():
+            raise AuditError(f"设计系统 project.name 必须是非空字符串：{candidate}")
+        colors = payload["tokens"].get("colors")
+        if not isinstance(colors, dict) or not colors or not all(
+            isinstance(value, str) and value.strip() for value in colors.values()
+        ):
+            raise AuditError(f"设计系统 tokens.colors 必须是非空的字符串映射：{candidate}")
+        generator = payload.get("generator", {})
+        if not isinstance(generator, dict):
+            raise AuditError(f"设计系统 generator 必须是对象：{candidate}")
+        if "version" in generator and not isinstance(generator["version"], str):
+            raise AuditError(f"设计系统 generator.version 必须是字符串：{candidate}")
+        for field in ("schema_version", "generated_at"):
+            if field in payload and not isinstance(payload[field], str):
+                raise AuditError(f"设计系统 {field} 必须是字符串：{candidate}")
         return {
             "path": candidate,
             "data": payload,
-            "version": (payload.get("generator") or {}).get("version"),
+            "version": generator.get("version"),
             "schema_version": payload.get("schema_version"),
-            "tokens": set(
-                str(value).upper()
-                for value in (payload.get("tokens", {}).get("colors", {}) or {}).values()
-                if isinstance(value, str) and value.startswith("#")
-            ),
+            "tokens": {value.upper() for value in colors.values() if value.startswith("#")},
         }
     return None
 
@@ -1226,8 +1308,10 @@ def _check_misc(project: dict[str, Any], findings: list[dict[str, Any]], seen: s
     return (1 if important_count > 5 else 0), (1 if infinite_count > 2 else 0)
 
 
-def audit_project(path: Path) -> dict[str, Any]:
-    project = _load_project(path)
+def audit_project(
+    path: Path, design_system_path: Path | None = None
+) -> dict[str, Any]:
+    project = _load_project(path, design_system_path)
     global _PROJECT
     _PROJECT = project
     findings: list[dict[str, Any]] = []
@@ -1492,6 +1576,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--path", default=".", help="项目目录，默认当前目录")
     parser.add_argument(
+        "--design-system",
+        default=None,
+        help="可选：MASTER.json 或包含它的目录；默认在当前目录及上级目录查找 design-system/",
+    )
+    parser.add_argument(
         "--format",
         choices=["markdown", "json"],
         default="markdown",
@@ -1520,7 +1609,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
-        report = audit_project(Path(args.path))
+        report = audit_project(
+            Path(args.path),
+            Path(args.design_system) if args.design_system else None,
+        )
     except AuditError as exc:
         print(f"错误：{exc}", file=sys.stderr)
         return 2

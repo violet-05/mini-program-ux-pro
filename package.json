@@ -5,15 +5,17 @@
   "description": "微信小程序审美与交互设计智能 Skill：本地设计知识检索、设计系统生成、静态审查与验证工作流。",
   "license": "MIT",
   "scripts": {
-    "search": "python scripts/search.py",
-    "design-system": "python scripts/generate_design_system.py",
-    "audit": "python scripts/audit_mini_program.py --path .",
+    "mpux": "python mpux.py",
+    "doctor": "python mpux.py doctor",
+    "search": "python mpux.py search",
+    "design-system": "python mpux.py design",
+    "audit": "python mpux.py audit",
     "validate:data": "python scripts/validate_data.py",
     "validate:skill": "python scripts/validate_skill.py",
     "validate": "python scripts/validate_project.py --path .",
     "test": "python -m unittest discover -s tests -v",
-    "install:project": "python scripts/install_skill.py --project",
-    "verify:runtime": "python scripts/devtools_adapter.py run --project verification"
+    "install:project": "python mpux.py install --project",
+    "verify:runtime": "python mpux.py verify run --project verification"
   },
   "keywords": [
     "wechat",

@@ -148,9 +148,34 @@ class DesignSystemTests(unittest.TestCase):
         with self.assertRaises(DesignSystemError):
             generate_design_system("完全不存在的产品类型 abcdef", no_pages=True)
 
+    def test_unknown_product_with_generic_program_term_raises(self) -> None:
+        with self.assertRaises(DesignSystemError):
+            generate_design_system("宠物殡葬小程序", no_pages=True)
+
     def test_unknown_style_raises(self) -> None:
         with self.assertRaises(DesignSystemError):
             generate_design_system("音乐播放器小程序", style="不存在的风格 abcdef", no_pages=True)
+
+    def test_unknown_page_raises(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mpux-pages-") as temp:
+            with self.assertRaises(DesignSystemError):
+                generate_design_system(
+                    "音乐播放器小程序",
+                    pages=["不存在的页面"],
+                    output_dir=Path(temp) / "ds",
+                )
+
+    def test_fuzzy_product_and_page_still_resolve(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mpux-fuzzy-") as temp:
+            product_result = generate_design_system("电商小程序", no_pages=True)
+            self.assertEqual(product_result["design_system"]["product"]["id"], "prod-ecommerce")
+            page_result = generate_design_system(
+                "音乐播放器小程序",
+                pages=["播放器"],
+                output_dir=Path(temp) / "ds",
+            )
+            page_files = {Path(item["file"]).name for item in page_result["design_system"]["pages"]}
+            self.assertIn("music-player.md", page_files)
 
     def test_persistence_and_no_clobber(self) -> None:
         with tempfile.TemporaryDirectory(prefix="mpux-ds-") as temp:

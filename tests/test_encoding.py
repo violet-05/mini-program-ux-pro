@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 CLI_SCRIPTS = (
+    "doctor.py",
     "search.py",
     "generate_design_system.py",
     "audit_mini_program.py",

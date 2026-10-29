@@ -12,6 +12,7 @@ from mpux_core import (  # noqa: E402
     DATA_DIR,
     DOMAIN_CONFIG,
     STACK_CONFIG,
+    resolve_product_reference,
     search_knowledge,
     search_stack,
     tokenize,
@@ -43,6 +44,15 @@ class SearchCoreTests(unittest.TestCase):
         self.assertEqual(result["results"][0]["id"], "mp-safe-area")
         self.assertIn("matched_fields", result["results"][0])
         self.assertGreater(result["results"][0]["score"], 0)
+
+    def test_product_resolution_rejects_generic_program_term(self) -> None:
+        self.assertIsNone(resolve_product_reference("宠物殡葬小程序"))
+        self.assertIsNone(resolve_product_reference("量子计算小程序"))
+
+    def test_product_resolution_accepts_fuzzy_identity_match(self) -> None:
+        product = resolve_product_reference("电商小程序")
+        self.assertIsNotNone(product)
+        self.assertEqual(product["product_id"], "prod-ecommerce")
 
     def test_category_filter(self) -> None:
         result = search_knowledge("触控区域", domain="ux", limit=5)

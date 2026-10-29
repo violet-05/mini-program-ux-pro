@@ -5,11 +5,19 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from helpers import FIXTURES, ROOT, load_json_output, run_script  # noqa: E402
 
-from audit_mini_program import audit_project, format_markdown  # noqa: E402
+from audit_mini_program import (  # noqa: E402
+    AuditError,
+    _detect_stack,
+    _find_files,
+    _strip_json_comments,
+    audit_project,
+    format_markdown,
+)
 
 
 class AuditTests(unittest.TestCase):
@@ -79,6 +87,79 @@ class AuditTests(unittest.TestCase):
         self.assertIn("不能证明", markdown)
         self.assertIn("P0", markdown)
 
+    def test_jsonc_trailing_commas_preserve_strings(self) -> None:
+        cleaned = _strip_json_comments('{"a": "x,}", "b": [1, 2,],}')
+        self.assertEqual(json.loads(cleaned), {"a": "x,}", "b": [1, 2]})
+        cleaned = _strip_json_comments('{\n // comment\n "a": "http://x,]",\n}')
+        self.assertEqual(json.loads(cleaned), {"a": "http://x,]"})
+
+    def test_design_system_found_in_parent(self) -> None:
+        report = audit_project(ROOT / "verification" / "mini-program")
+        self.assertIsNotNone(report["scope"].get("design_system"))
+        self.assertFalse(
+            any("未检测到设计系统" in finding["title"] for finding in report["findings"])
+        )
+
+    def test_explicit_design_system(self) -> None:
+        report = audit_project(
+            ROOT / "verification" / "mini-program",
+            ROOT / "verification" / "design-system",
+        )
+        self.assertIsNotNone(report["scope"].get("design_system"))
+
+    def test_invalid_explicit_design_system(self) -> None:
+        with self.assertRaises(AuditError):
+            audit_project(
+                ROOT / "verification" / "mini-program",
+                ROOT / "definitely-not-there",
+            )
+
+    def test_malformed_design_system_is_rejected(self) -> None:
+        valid = {"project": {"name": "Test"}, "tokens": {"colors": {"brand": "#FFFFFF"}}}
+        invalid = [None, [], {}, {**valid, "project": []},
+                   {**valid, "project": {"name": 1}}, {**valid, "tokens": None},
+                   {**valid, "tokens": {"colors": []}}, {**valid, "tokens": {"colors": {"brand": 1}}},
+                   {**valid, "generator": "bad"}, {**valid, "generator": {"version": []}},
+                   {**valid, "schema_version": []}, {**valid, "generated_at": {}}]
+        for payload in invalid:
+            with self.subTest(payload=payload), tempfile.TemporaryDirectory(prefix="mpux-master-") as temp:
+                master = Path(temp) / "MASTER.json"
+                master.write_text(json.dumps(payload), encoding="utf-8")
+                with self.assertRaises(AuditError):
+                    audit_project(FIXTURES / "wechat-native", master)
+
+    def test_invalid_utf8_design_system_reports_error(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mpux-master-") as temp:
+            master = Path(temp) / "MASTER.json"
+            master.write_bytes(b"\xff\xfe")
+            process = run_script("audit_mini_program.py", "--path", str(FIXTURES / "wechat-native"),
+                                 "--design-system", str(master), "--format", "json")
+        self.assertEqual(process.returncode, 2)
+        self.assertIn("设计系统无法读取", process.stderr)
+        self.assertNotIn("Traceback", process.stderr)
+
+    def test_automatic_discovery_does_not_hide_invalid_master(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mpux-master-") as temp:
+            root = Path(temp)
+            (root / "design-system").mkdir()
+            (root / "design-system" / "MASTER.json").write_text("[]", encoding="utf-8")
+            with self.assertRaises(AuditError):
+                audit_project(root)
+
+    def test_cli_design_system_option(self) -> None:
+        process = run_script(
+            "audit_mini_program.py",
+            "--path",
+            str(ROOT / "verification" / "mini-program"),
+            "--design-system",
+            str(ROOT / "verification" / "design-system"),
+            "--format",
+            "json",
+        )
+        self.assertEqual(process.returncode, 0, process.stderr)
+        payload = load_json_output(process)
+        self.assertTrue(payload["scope"]["design_system"])
+
     def test_cli_json_and_gate(self) -> None:
         process = run_script(
             "audit_mini_program.py",
@@ -121,6 +202,29 @@ class AuditTests(unittest.TestCase):
             self.assertTrue(output.exists())
             payload = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(payload["report_type"], "static-mini-program-review")
+
+    def test_tool_and_dependency_directories_do_not_pollute_audit(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mpux-scan-") as temp:
+            root = Path(temp)
+            for name in (".claude", ".qoder", ".cursor", ".codex", "node_modules", "dist"):
+                directory = root / name / "nested"
+                directory.mkdir(parents=True)
+                (directory / "index.html").write_text("<div>sample</div>", encoding="utf-8")
+                (directory / "index.js").write_text("document.querySelector('div')", encoding="utf-8")
+            self.assertEqual(_find_files(root), [])
+            self.assertEqual(_detect_stack(root)[0], "unknown")
+            source = root / "index.js"
+            source.write_text("Page({})", encoding="utf-8")
+            self.assertEqual(_find_files(root), [source])
+
+    def test_scan_limit_never_returns_a_partial_success(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mpux-scan-") as temp:
+            root = Path(temp)
+            source = root / "index.js"
+            source.write_text("Page({})", encoding="utf-8")
+            with patch("audit_mini_program._walk_project_files", return_value=iter([source] * 4001)):
+                with self.assertRaisesRegex(AuditError, "4000"):
+                    _find_files(root)
 
     def test_nonexistent_path(self) -> None:
         process = run_script(

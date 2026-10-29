@@ -1,10 +1,39 @@
 # Mini Program UX Pro（MPUX Pro）
 
-面向微信小程序的中文 UI/UX 审美与交互设计智能 Skill。
+**让 AI 做小程序时，有设计依据，也有验收边界。**
 
-它把设计判断拆成可检索、可解释、可持久化、可验证的流程：识别产品任务与技术栈，检索设计知识，生成项目级设计系统，指导页面实现，并对现有小程序做静态审查。
+MPUX Pro 是面向微信小程序的中文 UI/UX Skill 与本地命令工具。把产品需求转成项目级设计系统，再用静态审查发现实现问题，而不是给每个产品套同一张模板。
 
-> 本项目**不是**一套固定“高级感”模板，也**不声称**所有小程序都应长成同一种样子。设计方向由业务、用户、场景、品牌和微信平台共同决定。
+**Python 3.10+ · 核心零依赖 · 无 API Key · 原生 / uni-app / Taro**
+
+## 三分钟上手
+
+下载源码后，在本目录运行；不需要 `npm install`：
+
+```bash
+python mpux.py doctor
+python mpux.py search "商品卡片" --domain components -n 1
+python mpux.py design --product "音乐播放器小程序" --stack wechat-native --output ./design-system --format both
+```
+
+预期：诊断显示「核心功能可用」，检索返回 `comp-product-card`，设计输出包含 `MASTER.md`、`MASTER.json`、`tokens.wxss` 与 `pages/`。已有 Master 默认保留，不会静默覆盖。
+
+审查你自己的小程序：
+
+```bash
+python mpux.py audit --path "../your-mini-program" --format markdown
+```
+
+| 你现在要做什么 | 入口 |
+| --- | --- |
+| 第一次使用 / 排查安装问题 | `python mpux.py doctor` |
+| 找设计依据 | `python mpux.py search "关键词"` |
+| 建立统一设计系统 | `python mpux.py design --help` |
+| 检查已有页面 | `python mpux.py audit --help` |
+| 接入 AI 编程工具 | [安装指南](docs/installation.md) |
+| 查看完整参数与案例 | [使用指南](docs/usage.md) · [音乐案例](examples/music-mini-program.md) |
+
+`doctor` 通过只表示本地安装可用，不代表用户项目、视觉效果或真机验收通过。遇到问题见 [故障排查](docs/troubleshooting.md)。
 
 ## 项目介绍
 
@@ -62,7 +91,7 @@ MPUX Pro 用原创结构化知识库和本地检索解决这些问题，并提�
 - Node.js 24.11.0（仅可选运行时验收使用）
 - 微信官方文档核验日期：2026-10-27
 
-macOS/Linux 理论可用，但本版未在这些系统实际运行测试。
+核心 CLI 已通过 Ubuntu/Windows × Python 3.10/3.12 的 CI；macOS 尚未实测。开发者工具的交互与截图证据仍仅来自上述 Windows 环境。
 
 技术栈：
 
@@ -79,17 +108,19 @@ macOS/Linux 理论可用，但本版未在这些系统实际运行测试。
 
 要求：Python 3.10+，无第三方 Python 依赖。可选的 DevTools 运行时验收另需 Node.js 18+ 与 `npm install`。
 
-安装到当前项目：
+在源码目录安装到你的小程序项目（请替换目标路径，不要指向 Skill 源码自身）：
 
 ```bash
-python scripts/install_skill.py --project
+python mpux.py install --project "../your-mini-program"
 ```
 
 安装到用户级 Claude Skills：
 
 ```bash
-python scripts/install_skill.py
+python mpux.py install
 ```
+
+安装器先在临时目录执行检索验证，再替换旧版；已有安装须显式 `--force`，不会覆盖未识别的目录。宣传视频和工具缓存不进入 Skill 安装目录。
 
 手动安装、其他 AI 工具与验证见 [安装文档](docs/installation.md)。
 
@@ -149,6 +180,8 @@ python scripts/generate_design_system.py \
 python scripts/audit_mini_program.py --path . --format markdown
 ```
 
+如果 `--path` 指向 `miniprogramRoot` 子目录，可用 `--design-system` 指定 `MASTER.json` 或 `design-system/` 目录；默认会在当前及上级目录查找。
+
 只读，不修改项目。CI 阈值：
 
 ```bash
@@ -157,11 +190,21 @@ python scripts/audit_mini_program.py --path . --fail-on P1
 
 ### 4. 验证
 
+使用者检查安装：
+
+```bash
+python mpux.py doctor
+```
+
+维护者检查完整源码仓库：
+
 ```bash
 python scripts/validate_data.py
 python scripts/validate_skill.py
-python scripts/validate_project.py --path .
+python mpux.py validate
 ```
+
+`validate` 检查已保存的模拟器证据，不会重跑开发者工具；也不是对用户项目的验收。
 
 ## 设计系统持久化
 
@@ -248,14 +291,15 @@ python scripts/devtools_adapter.py --cli "<cli.bat 的绝对路径>" run --proje
 - 未内置视觉模型；提供独立的请求/响应契约与不可用适配器，不调用远程服务；
 - 微信开发者工具自动化只覆盖模拟器，不包含 iOS/Android 真机；模拟器截图不能替代真机；
 - 可选运行时验收需要 Node.js、npm 依赖和用户手动开启服务端口；
-- macOS/Linux 未在本版实际验证；
+- macOS 未实测；Ubuntu CI 覆盖核心 CLI，不代表 Linux 开发者工具已验证；
 - 生成器不能验证页面真实视觉、键盘、安全区、性能或业务正确性。
 
 ## 项目结构
 
 ```text
 .
-├── SKILL.md                 # 入口与执行原则
+├── mpux.py                  # 统一 CLI：doctor / search / design / audit / install
+├── SKILL.md                 # AI 工作流入口与执行原则
 ├── data/                    # 原创知识库（产品/风格/配色/布局/规则/技术栈）
 ├── references/              # 设计/平台参考
 ├── styles/                  # 11 份风格应用指南
@@ -266,6 +310,7 @@ python scripts/devtools_adapter.py --cli "<cli.bat 的绝对路径>" run --proje
 ├── templates/               # Master/页面覆盖/报告模板
 ├── examples/                # 6 个产品案例
 ├── verification/            # 可选的 DevTools 运行时验收小程序、截图与结果
+├── promo-video/             # Remotion 宣传片工程（52s / 1080p / 独立 npm 项目）
 ├── tests/                   # unittest + fixtures
 └── docs/                    # 安装/使用/架构/兼容性等
 ```
@@ -280,6 +325,12 @@ python scripts/validate_project.py --path .
 Windows 控制台建议设置 `PYTHONUTF8=1`；所有 CLI 也会主动把 stdout/stderr 切到 UTF-8。CI 在 Ubuntu/Windows 与 GBK stdio 环境下运行回归测试。
 
 实际验收结果、五类产品差异、24 项 DevTools 模拟器检查和未验证项见 [验收报告](docs/acceptance-report.md)。运行时截图与机器可读结果在 [verification/artifacts](verification/artifacts/)。
+
+## 宣传视频
+
+源码仓库中的 `promo-video/` 是独立的 Remotion 工程，提供 52 秒、1920×1080、30fps 的项目宣传片，含中文神经语音、内嵌字幕和 SRT 字幕。成片与字幕位于 `promo-video/out/`（不纳入 Git），重新渲染见 `promo-video/README.md`；该目录不会随 Skill 安装。
+
+视频工程有独立的 npm/Python 依赖；配音生成会连接在线 TTS 服务，不属于核心 CLI 的离线功能。Remotion 适用其自身许可条款。
 
 ## 未来路线
 

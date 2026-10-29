@@ -7,15 +7,19 @@
 - 可选的微信开发者工具运行时验收需要 Node.js 18+、npm 和已安装的 DevTools；
 - 建议保留项目目录结构，不要只复制 `SKILL.md`。
 
-## 方式一：安装到当前项目（推荐试用）
+## 方式一：安装到你的小程序项目
 
-在 Skill 项目根目录运行：
+在 MPUX Pro 源码目录运行，将路径替换为你的小程序项目目录（不是本 Skill 源码目录）：
 
 ```bash
-python scripts/install_skill.py --project
+python mpux.py install --project "../your-mini-program"
 ```
 
-会把 Skill 复制到当前项目的 `.claude/skills/mini-program-ux-pro/`，并执行一次“商品卡片”检索冒烟测试。
+会安装到该项目的 `.claude/skills/mini-program-ux-pro/`。也可以在小程序项目目录中，通过绝对路径运行 `python "<MPUX源码目录>/mpux.py" install --project`。
+
+安装前可使用 `--check` 预检而不复制；成功后会显示完整的诊断和检索命令。不能将 Skill 安装到自身源码目录内，以免递归复制。
+
+只想先试用 CLI 时，无需安装：在源码目录运行 `python mpux.py doctor` 即可。
 
 ## 方式二：安装到用户级 Claude Skills 目录
 
@@ -34,7 +38,7 @@ python scripts/install_skill.py
 python scripts/install_skill.py --force
 ```
 
-`--force` 会先删除同名安装目录，请确认该目录属于本 Skill。
+`--force` 只接受有 `SKILL.md` 和匹配名称 `skill.json` 的旧 Skill 目录。新副本先在临时目录完成检索验证，再替换旧版；复制或验证失败时保留旧版，替换异常时尝试回滚。不保证断电恢复，也不会保留安装目录内的用户定制，请先备份。
 
 只检查不复制：
 
@@ -70,11 +74,15 @@ python scripts/install_skill.py --check
 
 ## 验证安装
 
-### 1. Skill 文件与命令
+安装后在目标 Skill 目录运行以下命令，或直接复制安装成功提示中的完整路径命令。
+
+### 1. 安装诊断
 
 ```bash
-python scripts/validate_skill.py
+python mpux.py doctor
 ```
+
+只需 Python，不要求 Node.js 或微信开发者工具。诊断包含版本、核心文件、知识库与真正的独立检索，失败时显示修复建议。自动化可加 `--json`。
 
 ### 2. 检索
 
@@ -105,11 +113,9 @@ python scripts/audit_mini_program.py --path . --format markdown
 
 只审查，不修改项目。
 
-### 5. 项目自检
+### 5. 维护者源码自检
 
-```bash
-python scripts/validate_project.py --path .
-```
+只有在维护完整源码仓库时才需要运行 `python mpux.py validate`。安装可用性用 `doctor`，自己的小程序用 `audit --path "<小程序目录>"`；不要混淆这三种检查。
 
 ## Windows 说明
 
@@ -156,7 +162,7 @@ python scripts/validate_project.py --path .
 
 1. 备份已修改的 `design-system/`（设计输出不属于 Skill 源码）；
 2. 用新版目录覆盖安装（`--force`）；
-3. 运行 `python scripts/validate_project.py --path .`；
+3. 在新安装目录运行 `python mpux.py doctor`；
 4. 重新阅读 CHANGELOG 与 docs。
 
 ## 安全

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -83,6 +84,8 @@ REQUIRED_FILES = [
     "checklists/responsive-quality.md",
     "checklists/accessibility-quality.md",
     "checklists/release-quality.md",
+    "mpux.py",
+    "scripts/doctor.py",
     "scripts/search.py",
     "scripts/generate_design_system.py",
     "scripts/audit_mini_program.py",
@@ -150,6 +153,7 @@ REQUIRED_TOPICS = {
 }
 
 CLI_SCRIPTS = [
+    "doctor.py",
     "search.py",
     "generate_design_system.py",
     "audit_mini_program.py",
@@ -197,11 +201,11 @@ def _read_frontmatter(text: str) -> tuple[dict[str, str], str]:
 
 
 def _check_text_files(root: Path, errors: list[str], warnings: list[str]) -> int:
-    markdown_files = [
-        path
-        for path in root.rglob("*.md")
-        if ".git" not in path.parts and "node_modules" not in path.parts
-    ]
+    excluded = {".git", ".github", ".qoder", ".claude", ".cursor", "node_modules", "promo-video", ".venv", "__pycache__"}
+    markdown_files = []
+    for directory, subdirectories, files in os.walk(root):
+        subdirectories[:] = sorted(name for name in subdirectories if name not in excluded)
+        markdown_files.extend(Path(directory) / name for name in sorted(files) if name.endswith(".md"))
     checked = 0
     for path in markdown_files:
         text = path.read_text(encoding="utf-8", errors="replace")

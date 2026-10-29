@@ -1,14 +1,30 @@
 # 使用指南
 
-## 三个核心入口
+## 统一命令入口
 
 | 需求 | 命令 |
 | --- | --- |
-| 查设计知识 | `python scripts/search.py` |
-| 生成设计系统 | `python scripts/generate_design_system.py` |
-| 审查现有小程序 | `python scripts/audit_mini_program.py` |
+| 检查安装 | `python mpux.py doctor` |
+| 查设计知识 | `python mpux.py search` |
+| 生成设计系统 | `python mpux.py design` |
+| 审查现有小程序 | `python mpux.py audit` |
+| 安装到目标项目 | `python mpux.py install --project "../your-mini-program"` |
+| 维护者仓库自检 | `python mpux.py validate` |
+| 可选的模拟器验收 | `python mpux.py verify --help` |
 
-所有命令都在本地运行，不调用远程 AI API。
+在源码或安装目录运行；其他目录中请使用 `mpux.py` 的绝对路径。所有路径参数仍相对于当前工作目录，不会自动切换到 Skill 目录。每个命令支持 `--help`，版本查询使用 `python mpux.py --version`。
+
+检索、生成、审查均在本地运行，不调用远程 AI API。以下底层脚本入口仍可直接使用，参数与统一入口一致。
+
+### 诊断与退出码
+
+`python mpux.py doctor --json` 输出安装路径、Python 路径、版本、检查结果、修复建议与未检查项；它不启动微信开发者工具，也不执行用户项目代码。`validate` 面向维护者完整源码仓库，检查历史证据，但不重跑模拟器；不要用它代替用户项目的 `audit`。
+
+- `0`：命令执行成功；无结果搜索也可能返回 `0`，应检查结果数量。
+- `1`：诊断/验证未通过，或审查达到 `--fail-on` 指定阈值。
+- `2`：参数或输入错误，例如设计文件损坏、安装目标不合法。
+
+自动化按退出码判断，不要只匹配终端中的「通过」文字。审查默认只出报告，不因发现问题而失败；CI 中请显式设置 `--fail-on P1`。
 
 ---
 
@@ -316,10 +332,10 @@ python scripts/validate_project.py --path .
 ## 7. 安装
 
 ```bash
-python scripts/install_skill.py --project
+python mpux.py install --project "../your-mini-program"
 ```
 
-详见 [安装](installation.md)。
+请替换为你的小程序项目目录。详见 [安装](installation.md)。
 
 ## 8. 退出码
 

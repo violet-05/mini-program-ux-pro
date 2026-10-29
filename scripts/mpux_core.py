@@ -23,6 +23,10 @@ from typing import Any, Iterable
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 MAX_RESULTS = 5
+PRODUCT_IDENTITY_FIELDS = frozenset(
+    {"name", "aliases", "summary", "target_users", "scenarios", "core_tasks"}
+)
+MIN_PRODUCT_MATCH_SCORE = 10.0
 
 DOMAIN_CONFIG: dict[str, dict[str, Any]] = {
     "product": {
@@ -729,6 +733,21 @@ def _product_preference_ids(product: dict[str, str] | None) -> dict[str, set[str
     return preferred
 
 
+def is_strong_product_match(result: dict[str, Any]) -> bool:
+    """产品解析必须命中身份字段，不能只靠 nav_pattern 等通用字段。"""
+    if not isinstance(result, dict):
+        return False
+    score = result.get("score", 0)
+    if not isinstance(score, (int, float)) or score < MIN_PRODUCT_MATCH_SCORE:
+        return False
+    matched_fields = {
+        item.get("field")
+        for item in result.get("matched_fields", [])
+        if isinstance(item, dict)
+    }
+    return bool(matched_fields & PRODUCT_IDENTITY_FIELDS)
+
+
 def resolve_product_reference(reference: str) -> dict[str, str] | None:
     if not reference:
         return None
@@ -742,10 +761,11 @@ def resolve_product_reference(reference: str) -> dict[str, str] | None:
     result = _search_single_domain(
         query=reference,
         domain="product",
-        limit=1,
+        limit=5,
     )
-    if result["count"]:
-        return result["results"][0]["record"]
+    for item in result["results"]:
+        if is_strong_product_match(item):
+            return item["record"]
     return None
 
 

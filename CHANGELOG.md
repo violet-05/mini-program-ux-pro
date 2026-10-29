@@ -10,10 +10,24 @@ All notable changes to Mini Program UX Pro are documented here.
 - 修复 Windows 默认 GBK 控制台下 `test_cli_build_and_validate` 失败，以及 `validate_project` 打印数据警告时抛出 `UnicodeEncodeError`。
 - 验证器与安装器调用 Python 子进程时强制 UTF-8 环境，避免继承 Windows 默认代码页。
 - 安装 Skill 时排除 `.github`。
+- 产品模糊匹配必须命中名称、别名、摘要、目标用户、场景或核心任务，避免仅凭 `nav_pattern` 等通用字段误判；未知页面不再静默回退到 `home`。
+- JSONC 尾逗号清理改为字符串感知，不再破坏字符串值中的 `,}` 或 `,]`。
+- 静态审查支持 `--design-system`，并默认在当前及上级目录查找设计系统。
+- `validate_project` 收紧运行时证据校验：要求全部检查通过、截图有效、无 console.error 和未捕获异常。
 
 ### Added
 
+- `mpux.py` 统一命令入口与 `--version`；支持 doctor / search / design / audit / install / validate / verify / visual。
+- `doctor` 本地安装诊断、JSON 报告、修复建议，明确区分安装健康与用户项目验收。
+- 安装器支持 `--project <项目目录>`、`--json` 和下一步命令；先复制与验证再替换，失败保留旧版，拒绝覆盖无关目录与符号链接。
+- 分发排除宣传工程、环境私密配置和工具缓存；Skill 文档校验在遍历前跳过独立工程与依赖目录。
+- 静态审查与技术栈识别排除工具安装目录和依赖，避免把 Skill 自身示例当成用户代码；超过 4000 文件时明确中止，不返回截断报告。
+- 设计文件输入类型与 UTF-8 校验；运行时证据字段、项目内截图路径和 PNG 结构完整性检查。
+- 统一 CLI 三栈生成、防覆盖、异目录运行、安装失败保护与畸形证据回归测试。
 - `tests/test_encoding.py`：在 `PYTHONIOENCODING=gbk` 下回归所有 CLI 的 UTF-8 输出。
+- `tests/test_project_validation.py`：覆盖运行时证据的通过/失败场景。
+- 产品弱匹配、页面静默回退、JSONC 字符串和设计系统路径回归测试。
+- `promo-video/`：52 秒、1920×1080、30fps 的 Remotion 宣传片工程，含中文神经语音、内嵌字幕、SRT 字幕与本地合成音轨。
 - GitHub Actions CI：Ubuntu/Windows × Python 3.10/3.12，以及独立 GBK stdio 回归任务。
 
 ## [1.0.0] - 2026-10-27

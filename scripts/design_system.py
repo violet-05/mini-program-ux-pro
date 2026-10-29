@@ -22,6 +22,7 @@ from mpux_core import (
     STACK_CONFIG,
     configure_utf8_stdio,
     get_stack_record,
+    is_strong_product_match,
     load_domain,
     read_csv,
     resolve_product_reference,
@@ -31,6 +32,7 @@ from mpux_core import (
 )
 
 VERSION = "1.0.0"
+MIN_PAGE_MATCH_SCORE = 5.0
 
 STYLE_TOKEN_PROFILES: dict[str, dict[str, Any]] = {
     "style-minimal": {
@@ -370,21 +372,20 @@ def _resolve_product(description: str) -> tuple[dict[str, str], str, float]:
         for identity in identities:
             if reference and _normalise_key(identity) == reference:
                 return row, "exact", 1.0
-    result = search_knowledge(description, domain="product", limit=3)
+    result = search_knowledge(description, domain="product", limit=5)
+    suggestions = "、".join(result.get("suggestions", [])[:4])
+    hint = f" 可尝试：{suggestions}。" if suggestions else ""
     if not result["results"]:
-        suggestions = "、".join(result.get("suggestions", [])[:4])
-        hint = f" 可尝试：{suggestions}。" if suggestions else ""
         raise DesignSystemError(
             f"知识库没有匹配的产品类型“{description}”。请使用更具体的产品名称或先运行 search.py --domain product 检索。{hint}"
         )
-    top = result["results"][0]
-    if top["score"] < 10.0:
-        suggestions = "、".join(result.get("suggestions", [])[:4])
-        hint = f" 可尝试：{suggestions}。" if suggestions else ""
+    strong_results = [item for item in result["results"] if is_strong_product_match(item)]
+    if not strong_results:
         raise DesignSystemError(
             f"产品描述“{description}”与知识库的匹配过弱，不能安全地生成设计系统。"
             f"请使用更明确的产品类型或先运行 search.py --domain product 检索。{hint}"
         )
+    top = strong_results[0]
     confidence = min(0.95, max(0.55, top["score"] / 100.0))
     return top["record"], "search", round(confidence, 2)
 
@@ -1132,6 +1133,20 @@ def _select_default_pages(layouts: list[dict[str, str]]) -> list[dict[str, str]]
     return selected[:3]
 
 
+def _is_strong_layout_match(result: dict[str, Any]) -> bool:
+    if not isinstance(result, dict):
+        return False
+    score = result.get("score", 0)
+    if not isinstance(score, (int, float)) or score < MIN_PAGE_MATCH_SCORE:
+        return False
+    matched_fields = {
+        item.get("field")
+        for item in result.get("matched_fields", [])
+        if isinstance(item, dict)
+    }
+    return "page_type" in matched_fields
+
+
 def _resolve_page_references(
     references: list[str] | None, layouts: list[dict[str, str]]
 ) -> list[dict[str, str]]:
@@ -1153,9 +1168,11 @@ def _resolve_page_references(
     for reference in references:
         row = lookup.get(_normalise_key(reference))
         if row is None:
-            result = search_knowledge(reference, domain="layout", limit=1)
-            if result["results"]:
-                row = result["results"][0]["record"]
+            result = search_knowledge(reference, domain="layout", limit=3)
+            row = next(
+                (item["record"] for item in result["results"] if _is_strong_layout_match(item)),
+                None,
+            )
         if row is None:
             raise DesignSystemError(f"无法识别页面“{reference}”；可传 layout ID 或页面类型。")
         if row["layout_id"] not in seen:

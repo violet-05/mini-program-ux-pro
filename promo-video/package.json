@@ -1,0 +1,42 @@
+{
+  "name": "promo-video",
+  "version": "1.0.0",
+  "description": "Remotion promo video for Mini Program UX Pro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/violet-05/mini-program-ux-pro.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24"
+  },
+  "private": true,
+  "dependencies": {
+    "@remotion/cli": "4.0.539",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.539"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.539",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "10.12.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "render": "remotion render MPUXPromo out/mpux-promo.mp4 --codec=h264 --crf=18",
+    "render:draft": "remotion render MPUXPromo out/mpux-promo-draft.mp4 --scale=0.5 --codec=h264 --crf=20",
+    "still": "remotion still MPUXPromo out/mpux-promo-poster.png --frame=1545",
+    "audio": "python scripts/generate_audio.py",
+    "voice": "python scripts/generate_voiceover.py",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc"
+  },
+  "allowScripts": {
+    "esbuild": false
+  }
+}

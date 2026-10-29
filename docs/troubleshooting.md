@@ -1,5 +1,18 @@
 # 故障排查
 
+## 先检查安装
+
+```bash
+python mpux.py doctor
+python mpux.py doctor --json
+```
+
+在源码或安装目录运行；其他目录中使用 `mpux.py` 的绝对路径。诊断会列出缺失文件、元数据/知识库错误和修复建议。它不检查用户项目，也不把未执行的模拟器或真机项目标成通过。
+
+若提示「安装目标不能位于源目录内」，请使用 `python mpux.py install --project "../your-mini-program"` 指向你的小程序项目。不要在 Skill 源码中安装到它自身的 `.claude/skills`。
+
+升级采用临时目录复制与检索验证，再替换已识别的旧 Skill；验证失败不会删除旧安装。若拒绝覆盖无关目录或符号链接，请换一个目标目录，不要通过删除文件绕过检查。
+
 ## Python 不可用
 
 ```bash
@@ -37,6 +50,10 @@ $env:PYTHONIOENCODING = "utf-8"
 ```
 
 也可以用 `python -X utf8 scripts/validate_project.py --path .` 运行单次命令。项目 CI 包含 GBK stdio 回归测试，所有 CLI 的 stdout/stderr 应为 UTF-8。
+
+## 审查扫描范围
+
+审查器会跳过 `.claude`、`.qoder`、`.cursor`、`.codex`、`node_modules` 与构建产物，避免把安装的 Skill 或依赖误当成用户源码。超过 4000 个可审查文件时会中止并提示缩小 `--path`，不会悄悄输出截断报告。
 
 ## 检索没有结果
 
@@ -141,6 +158,14 @@ python scripts/generate_design_system.py ... --pages home,product-detail
 ```bash
 python scripts/audit_mini_program.py --path ./src --format markdown
 ```
+
+如果设计系统在项目根目录而 `--path` 指向 `miniprogramRoot` 子目录，可显式指定：
+
+```bash
+python scripts/audit_mini_program.py --path ./miniprogram --design-system ./design-system
+```
+
+不指定时，审查器会在当前目录及上级目录查找 `design-system/MASTER.json`。
 
 纯 HTML 会被标记为浏览器原型，不会当作小程序。
 

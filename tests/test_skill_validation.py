@@ -79,7 +79,7 @@ class SkillValidationTests(unittest.TestCase):
             target_base = Path(temp) / "skills with spaces"
             result = install(target_base)
             self.assertEqual(result["status"], "installed")
-            target = target_base / SKILL_NAME
+            target = (target_base / SKILL_NAME).resolve()
             self.assertTrue((target / "mpux.py").is_file())
             self.assertEqual([name for name in REQUIRED_FILES if not (target / name).is_file()], [])
             self.assertEqual(result["smoke_test"]["top_result"], "comp-product-card")

@@ -232,6 +232,14 @@ python scripts/audit_mini_program.py --path . --format markdown
 python scripts/audit_mini_program.py --path . --fail-on P1
 ```
 
+修改前后对比（保存两份 JSON 后运行）：
+
+```bash
+python mpux.py compare review-before.json review-after.json
+```
+
+只有本次仍执行同一检查、相关文件仍在扫描范围内，才把问题计为“已确认修复”；否则标记“无法确认”，不能当作通过。
+
 审查原则：
 
 - 先修 P0/P1；

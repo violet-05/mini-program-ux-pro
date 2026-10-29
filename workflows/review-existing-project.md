@@ -100,14 +100,21 @@ python scripts/audit_mini_program.py --path . --format json --output review-befo
 
 ## 9. 修改后复查
 
+修改前先保存基线：
+
 ```bash
-python scripts/audit_mini_program.py --path . --format json --output review-after.json
+python scripts/audit_mini_program.py --path . --format json --output review-before.json
 ```
 
-比较前后：
+修改后重新审查并比较：
 
-- 问题是否消失；
-- 是否引入新问题；
+```bash
+python scripts/audit_mini_program.py --path . --format json --output review-after.json
+python mpux.py compare review-before.json review-after.json
+```
+
+对比报告区分新增、新增待确认、已确认修复、无法确认和遗留。`unconfirmed` 表示本次没有执行同一检查或扫描范围缩小，不能算修复；`new_unverified` 表示问题所在文件或检查上次没有覆盖，不能直接归因为本次引入。仍需人工确认：
+
 - 页面是否仍能返回和完成核心任务；
 - 新增颜色/圆角/组件是否遵守设计系统；
 - 未重新验证的项是否被误报为通过。

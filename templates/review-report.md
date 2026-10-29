@@ -87,7 +87,9 @@
 - 已修复：
 - 未修复：
 - 是否引入新问题：
-- 与修改前对比：
+- 与修改前对比：使用 `python mpux.py compare review-before.json review-after.json`，记录新增、已确认修复、无法确认与遗留数量。
+
+> `resolved` 只表示静态规则不再报告；未执行检查、缩小扫描范围或人工判断项不能视为通过。
 
 ## 结论与未完成项
 

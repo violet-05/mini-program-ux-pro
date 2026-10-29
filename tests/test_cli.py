@@ -21,7 +21,7 @@ CLI = str(ROOT / "mpux.py")
 class UnifiedCliTests(unittest.TestCase):
     def test_help_and_subcommand_help(self) -> None:
         for args in ([], ["--help"], *([command, "--help"] for command in (
-            "doctor", "search", "design", "audit", "install", "validate", "verify", "visual",
+            "doctor", "search", "design", "audit", "compare", "install", "validate", "verify", "visual",
         ))):
             with self.subTest(args=args):
                 process = run_cli(CLI, *args)

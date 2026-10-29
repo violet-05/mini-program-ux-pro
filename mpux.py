@@ -13,6 +13,7 @@ COMMANDS = {
     "search": ("search", "检索本地设计知识与技术栈规则"),
     "design": ("generate_design_system", "生成 Master、设计 token 与页面覆盖"),
     "audit": ("audit_mini_program", "只读审查现有小程序，可设置 CI 阈值"),
+    "compare": ("review_compare", "比较两份审查报告，区分新增、修复与遗留"),
     "install": ("install_skill", "安装 Skill，先验证再替换旧版本"),
     "validate": ("validate_project", "维护者仓库自检，包含历史模拟器证据检查"),
     "verify": ("devtools_adapter", "可选的微信开发者工具模拟器验收"),

@@ -16,6 +16,7 @@
     "design-system-generation",
     "master-page-overrides",
     "static-mini-program-audit",
+    "static-review-comparison",
     "wechat-native-rules",
     "uni-app-rules",
     "taro-rules",

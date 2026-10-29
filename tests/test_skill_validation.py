@@ -50,6 +50,7 @@ class SkillValidationTests(unittest.TestCase):
             "search.py",
             "generate_design_system.py",
             "audit_mini_program.py",
+            "review_compare.py",
             "validate_data.py",
             "validate_skill.py",
             "validate_project.py",

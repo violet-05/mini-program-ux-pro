@@ -2,99 +2,115 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/mpux-pro/schemas/review-report.schema.json",
   "title": "MPUX Pro Static Review Report",
-  "description": "audit_mini_program.py --json 的静态审查报告结构。",
+  "description": "离线静态审查报告 1.1.0；fingerprint 跟踪问题组，不代表每个源码出现位置。",
   "type": "object",
-  "additionalProperties": true,
-  "required": [
-    "schema_version",
-    "report_type",
-    "generator",
-    "project",
-    "generated_at",
-    "environment",
-    "scope",
-    "executed_checks",
-    "skipped_checks",
-    "findings",
-    "summary",
-    "coverage",
-    "next_steps"
-  ],
+  "required": ["schema_version", "report_type", "generator", "project", "generated_at", "environment", "scope", "executed_checks", "skipped_checks", "findings", "summary", "coverage", "next_steps"],
   "properties": {
-    "schema_version": { "type": "string" },
-    "report_type": { "const": "static-mini-program-review" },
-    "generator": { "type": "object" },
+    "schema_version": {"const": "1.1.0"},
+    "report_type": {"const": "static-mini-program-review"},
+    "generator": {
+      "type": "object", "required": ["name", "version"],
+      "properties": {"name": {"const": "mini-program-ux-pro"}, "version": {"$ref": "#/$defs/text"}}
+    },
     "project": {
-      "type": "object",
-      "required": ["name", "path", "stack", "stack_label"],
+      "type": "object", "required": ["name", "path", "stack", "stack_label", "stack_detection"],
       "properties": {
-        "stack": { "enum": ["wechat-native", "uni-app", "taro", "browser-prototype", "unknown"] }
+        "name": {"$ref": "#/$defs/text"}, "path": {"$ref": "#/$defs/text"},
+        "stack": {"enum": ["wechat-native", "uni-app", "taro", "browser-prototype", "unknown"]},
+        "stack_label": {"$ref": "#/$defs/text"}, "stack_detection": {"$ref": "#/$defs/text"}
       }
     },
-    "generated_at": { "type": "string" },
+    "generated_at": {"$ref": "#/$defs/text"},
     "environment": {
-      "type": "object",
-      "required": ["mode", "runtime", "browser_preview", "wechat_devtools", "real_device", "visual_model"],
+      "type": "object", "required": ["mode", "runtime", "browser_preview", "wechat_devtools", "real_device", "visual_model"],
       "properties": {
-        "mode": { "const": "static-code-review" }
+        "mode": {"const": "static-code-review"}, "runtime": {"const": "not_run"},
+        "browser_preview": {"const": "not_run"}, "wechat_devtools": {"const": "not_run"},
+        "real_device": {"const": "not_run"}, "visual_model": {"const": "not_run"}
       }
     },
     "scope": {
-      "type": "object",
-      "required": ["files_scanned", "pages_declared", "pages_found"],
+      "type": "object", "required": ["files_scanned", "source_files", "pages_declared", "pages_found", "page_paths", "design_system", "ruleset", "scan_policy"],
       "properties": {
-        "files_scanned": { "type": "integer", "minimum": 0 },
-        "pages_declared": { "type": "integer", "minimum": 0 },
-        "pages_found": { "type": "integer", "minimum": 0 }
-      }
-    },
-    "executed_checks": { "type": "array" },
-    "skipped_checks": { "type": "array", "minItems": 1 },
-    "findings": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["id", "severity", "category", "title", "evidence", "why", "recommendation", "rule_ids", "verification", "confidence"],
-        "properties": {
-          "id": { "type": "string", "pattern": "^F-[0-9]{3}$" },
-          "severity": { "enum": ["P0", "P1", "P2", "P3"] },
-          "verification": { "enum": ["automated", "rule-assisted", "needs-manual"] },
-          "confidence": { "enum": ["high", "medium", "low"] },
-          "evidence": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": ["file", "line"],
+        "files_scanned": {"$ref": "#/$defs/count"}, "source_files": {"$ref": "#/$defs/strings"},
+        "pages_declared": {"$ref": "#/$defs/count"}, "pages_found": {"$ref": "#/$defs/count"},
+        "page_paths": {"$ref": "#/$defs/strings"}, "ruleset": {"$ref": "#/$defs/text"},
+        "scan_policy": {
+          "type": "object", "required": ["max_file_bytes", "excluded_directories", "extensions"],
+          "properties": {
+            "max_file_bytes": {"type": "integer", "minimum": 1},
+            "excluded_directories": {"$ref": "#/$defs/strings"}, "extensions": {"$ref": "#/$defs/strings"}
+          }
+        },
+        "design_system": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object", "required": ["path", "project", "version", "schema_version", "generated_at", "fingerprint"],
               "properties": {
-                "file": { "type": "string" },
-                "line": { "type": "integer", "minimum": 1 },
-                "excerpt": { "type": "string" }
+                "path": {"$ref": "#/$defs/text"}, "project": {"$ref": "#/$defs/text"},
+                "version": {"$ref": "#/$defs/nullableText"}, "schema_version": {"$ref": "#/$defs/nullableText"},
+                "generated_at": {"$ref": "#/$defs/nullableText"}, "fingerprint": {"$ref": "#/$defs/fingerprint"}
               }
             }
-          }
+          ]
         }
       }
     },
-    "summary": {
-      "type": "object",
-      "required": ["P0", "P1", "P2", "P3"],
-      "properties": {
-        "P0": { "type": "integer", "minimum": 0 },
-        "P1": { "type": "integer", "minimum": 0 },
-        "P2": { "type": "integer", "minimum": 0 },
-        "P3": { "type": "integer", "minimum": 0 }
+    "executed_checks": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["id", "finding_groups", "mode"],
+        "properties": {"id": {"$ref": "#/$defs/text"}, "finding_groups": {"$ref": "#/$defs/count"}, "mode": {"const": "static"}}
       }
+    },
+    "skipped_checks": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["id", "reason"],
+        "properties": {"id": {"$ref": "#/$defs/text"}, "reason": {"$ref": "#/$defs/text"}}
+      }
+    },
+    "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "summary": {
+      "type": "object", "additionalProperties": false, "required": ["P0", "P1", "P2", "P3"],
+      "properties": {"P0": {"$ref": "#/$defs/count"}, "P1": {"$ref": "#/$defs/count"}, "P2": {"$ref": "#/$defs/count"}, "P3": {"$ref": "#/$defs/count"}}
     },
     "coverage": {
-      "type": "object",
-      "required": ["static_code", "runtime_checks", "visual_checks", "real_device_checks", "note"],
+      "type": "object", "required": ["static_code", "automated_checks", "heuristic_checks", "runtime_checks", "visual_checks", "real_device_checks", "note"],
       "properties": {
-        "static_code": { "const": true },
-        "runtime_checks": { "const": false },
-        "visual_checks": { "const": false },
-        "real_device_checks": { "const": false }
+        "static_code": {"const": true}, "automated_checks": {"const": true}, "heuristic_checks": {"const": true},
+        "runtime_checks": {"const": false}, "visual_checks": {"const": false}, "real_device_checks": {"const": false},
+        "note": {"$ref": "#/$defs/text"}
       }
     },
-    "next_steps": { "type": "array", "minItems": 1 }
+    "next_steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}}
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "nullableText": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+    "count": {"type": "integer", "minimum": 0},
+    "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "strings": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+    "finding": {
+      "type": "object", "required": ["id", "fingerprint", "check_id", "severity", "category", "title", "evidence", "why", "recommendation", "rule_ids", "verification", "confidence"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^F-[0-9]{3,}$"},
+        "fingerprint": {"$ref": "#/$defs/fingerprint"}, "check_id": {"$ref": "#/$defs/text"},
+        "severity": {"enum": ["P0", "P1", "P2", "P3"]},
+        "category": {"$ref": "#/$defs/text"}, "title": {"$ref": "#/$defs/text"},
+        "why": {"$ref": "#/$defs/text"}, "recommendation": {"$ref": "#/$defs/text"},
+        "rule_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+        "verification": {"enum": ["automated", "rule-assisted", "needs-manual"]},
+        "confidence": {"enum": ["high", "medium", "low"]},
+        "evidence": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "required": ["file", "line"],
+            "properties": {"file": {"$ref": "#/$defs/text"}, "line": {"type": "integer", "minimum": 1}, "excerpt": {"type": "string"}}
+          }
+        }
+      }
+    }
   }
 }

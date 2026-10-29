@@ -10,6 +10,7 @@
     "search": "python mpux.py search",
     "design-system": "python mpux.py design",
     "audit": "python mpux.py audit",
+    "compare": "python mpux.py compare",
     "validate:data": "python scripts/validate_data.py",
     "validate:skill": "python scripts/validate_skill.py",
     "validate": "python scripts/validate_project.py --path .",

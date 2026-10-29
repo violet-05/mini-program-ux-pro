@@ -38,6 +38,14 @@ python scripts/audit_mini_program.py --path . --format markdown
 - 读屏；
 - 业务数据正确。
 
+两次审查可以比较：
+
+```bash
+python mpux.py compare review-before.json review-after.json
+```
+
+对比只使用已保存的静态报告与扫描范围，不增加运行时证据；`resolved` 仅表示静态规则不再报告，不代表视觉、交互或真机通过。
+
 ### B. 浏览器预览
 
 本项目**没有内置浏览器运行/截图自动化**。如果用户自己运行 H5 或 HTML 原型，可以人工查看，但必须标注为“浏览器预览”。

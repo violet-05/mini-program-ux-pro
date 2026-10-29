@@ -16,11 +16,12 @@ CORE_FILES = (
     "mpux.py", "SKILL.md", "skill.json", "package.json",
     "scripts/mpux_core.py", "scripts/search.py", "scripts/design_system.py",
     "scripts/generate_design_system.py", "scripts/audit_mini_program.py",
+    "scripts/review_contract.py", "scripts/review_compare.py",
     "scripts/install_skill.py", "scripts/doctor.py", "scripts/validate_data.py",
     "scripts/validate_skill.py", "scripts/validate_project.py",
     "scripts/devtools_adapter.py", "scripts/visual_review_adapter.py",
     "schemas/design-system.schema.json", "schemas/search-result.schema.json",
-    "schemas/review-report.schema.json",
+    "schemas/review-report.schema.json", "schemas/review-comparison.schema.json",
 )
 
 

@@ -8,6 +8,7 @@
 | 查设计知识 | `python mpux.py search` |
 | 生成设计系统 | `python mpux.py design` |
 | 审查现有小程序 | `python mpux.py audit` |
+| 比较两次审查结果 | `python mpux.py compare` |
 | 安装到目标项目 | `python mpux.py install --project "../your-mini-program"` |
 | 维护者仓库自检 | `python mpux.py validate` |
 | 可选的模拟器验收 | `python mpux.py verify --help` |
@@ -21,7 +22,7 @@
 `python mpux.py doctor --json` 输出安装路径、Python 路径、版本、检查结果、修复建议与未检查项；它不启动微信开发者工具，也不执行用户项目代码。`validate` 面向维护者完整源码仓库，检查历史证据，但不重跑模拟器；不要用它代替用户项目的 `audit`。
 
 - `0`：命令执行成功；无结果搜索也可能返回 `0`，应检查结果数量。
-- `1`：诊断/验证未通过，或审查达到 `--fail-on` 指定阈值。
+- `1`：诊断/验证未通过，审查达到 `--fail-on` 阈值，或对比出现达到 `--fail-on-new` 阈值的已确认新增问题。
 - `2`：参数或输入错误，例如设计文件损坏、安装目标不合法。
 
 自动化按退出码判断，不要只匹配终端中的「通过」文字。审查默认只出报告，不因发现问题而失败；CI 中请显式设置 `--fail-on P1`。
@@ -249,6 +250,29 @@ python scripts/audit_mini_program.py --path . --fail-on P1
 
 报告中 `environment`、`skipped_checks` 与 `coverage` 会明确写出。不要把静态审查当运行时验收。
 
+### 前后对比
+
+```bash
+python scripts/audit_mini_program.py --path . --json --output review-before.json
+# 修改页面后
+python scripts/audit_mini_program.py --path . --json --output review-after.json
+python mpux.py compare review-before.json review-after.json --format markdown
+```
+
+对比结果分五类：
+
+- `new`：已确认新增（本次范围内、上次也检查过同类问题）；
+- `new_unverified`：新增但无法归因，例如问题所在文件上次未扫描、或该检查上次未执行；
+- `resolved`：已确认修复（本次执行了同一检查，且相关文件仍在扫描范围内）；
+- `unconfirmed`：上次有、本次没有，但检查未执行或扫描范围缩小，不能确认；
+- `remaining`：两次都存在；行号变化不影响匹配。
+
+匹配使用报告中的 `fingerprint`，它由检查 ID、类别、标题、规则和涉及文件组成，不包含行号、时间或排序位置。重命名文件会被视为“旧问题消失 + 新问题出现”。JSON 输出的 `resolved` 只表示静态规则不再报告该问题，不代表视觉、交互或真机验收通过。
+
+CI 中可用 `--fail-on-new P1`：只有已确认的新增问题达到阈值才返回退出码 1，`new_unverified` 不计入。
+
+当前报告格式为 1.1.0；旧版 1.0.0 报告没有稳定指纹，必须用当前版本重新生成后才能比较，工具会直接拒绝不兼容的格式。`compare` 不会覆盖输入报告。
+
 ### 推荐流程
 
 见 [现有项目审查工作流](../workflows/review-existing-project.md)。
@@ -327,7 +351,7 @@ python scripts/validate_project.py --path .
 
 - 数据验证：CSV 结构、ID、引用、颜色对比度；
 - Skill 验证：文件、frontmatter、链接、CLI 命令；
-- 项目自检：编译、数据、Skill、检索、生成器、审查冒烟，以及已保存的模拟器验收证据。
+- 项目自检：编译、数据、Skill、检索、生成器、审查与对比冒烟，以及已保存的模拟器验收证据。
 
 ## 7. 安装
 

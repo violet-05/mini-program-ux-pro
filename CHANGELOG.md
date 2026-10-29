@@ -6,6 +6,8 @@ All notable changes to Mini Program UX Pro are documented here.
 
 ### Fixed
 
+- 静态审查不再静默吞掉读取失败：非 UTF-8 源码、不可读目录/文件、损坏的 `package.json`/应用配置、非法页面路径都会明确报错，而不是当作空文件继续输出“通过”报告。
+- 审查问题去重改为按“类别 + 标题 + 文件”分组，同类问题不再跨文件互相覆盖；页面结构问题带上页面路径，加载/空/错误状态分别成组。
 - 统一 `validate_data`、`validate_skill`、`validate_project`、`install_skill`、`visual_review_adapter`、`devtools_adapter` 的 UTF-8 输出。
 - 修复 Windows 默认 GBK 控制台下 `test_cli_build_and_validate` 失败，以及 `validate_project` 打印数据警告时抛出 `UnicodeEncodeError`。
 - 验证器与安装器调用 Python 子进程时强制 UTF-8 环境，避免继承 Windows 默认代码页。
@@ -17,7 +19,10 @@ All notable changes to Mini Program UX Pro are documented here.
 
 ### Added
 
-- `mpux.py` 统一命令入口与 `--version`；支持 doctor / search / design / audit / install / validate / verify / visual。
+- `compare` 命令与 `review_compare.py`：比较两份静态审查 JSON，区分新增、新增待确认、已确认修复、无法确认与遗留；`--fail-on-new` 只对已确认新增问题设门禁。
+- `review_contract.py` 与 `schemas/review-comparison.schema.json`：审查报告升级到 1.1.0，加入稳定 `fingerprint`、`check_id`、扫描文件清单、规则集与扫描策略；对比输出同样经过契约校验。
+- `tests/test_review_compare.py` 与 `tests/test_audit_inputs.py`：覆盖指纹匹配、行号漂移、扫描范围变化、无法确认、门禁、畸形报告和审查输入边界。
+- `mpux.py` 统一命令入口与 `--version`；支持 doctor / search / design / audit / compare / install / validate / verify / visual。
 - `doctor` 本地安装诊断、JSON 报告、修复建议，明确区分安装健康与用户项目验收。
 - 安装器支持 `--project <项目目录>`、`--json` 和下一步命令；先复制与验证再替换，失败保留旧版，拒绝覆盖无关目录与符号链接。
 - 分发排除宣传工程、环境私密配置和工具缓存；Skill 文档校验在遍历前跳过独立工程与依赖目录。

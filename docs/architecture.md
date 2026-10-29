@@ -15,6 +15,8 @@ SKILL.md
   │   ├─ search.py              检索 CLI
   │   ├─ generate_design_system.py
   │   ├─ audit_mini_program.py  静态审查
+  │   ├─ review_contract.py     报告契约与问题指纹
+  │   ├─ review_compare.py      两次审查对比
   │   ├─ validate_data.py
   │   ├─ validate_skill.py
   │   ├─ validate_project.py
@@ -141,7 +143,9 @@ SKILL.md
 - 规则 + 正则/简单 CSS 块分析；
 - 每个 finding 带证据、严重度、判断方式和置信度；
 - 区分 `automated`、`rule-assisted`、`needs-manual`；
-- 未运行时检查写入 `skipped_checks`。
+- 未运行时检查写入 `skipped_checks`；
+- 报告由 `review_contract.py` 校验结构，finding 带稳定 `fingerprint`；
+- `review_compare.py` 比较两份报告，按检查覆盖率分类新增、修复与无法确认。
 
 它不执行项目代码、不导入用户依赖、不调用网络，因此安全，但也无法替代编译/真机。
 

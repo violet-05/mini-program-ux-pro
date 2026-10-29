@@ -252,6 +252,7 @@ def validate_project(root: Path = ROOT) -> dict[str, Any]:
         "search.py",
         "generate_design_system.py",
         "audit_mini_program.py",
+        "review_compare.py",
         "validate_data.py",
         "validate_skill.py",
         "install_skill.py",
@@ -352,35 +353,68 @@ def validate_project(root: Path = ROOT) -> dict[str, Any]:
             )
         )
 
-    # 7. 静态审查冒烟
-    audit_result = _run(
-        [
-            sys.executable,
-            str(scripts / "audit_mini_program.py"),
-            "--path",
-            "tests/fixtures/wechat-native",
-            "--format",
-            "json",
-        ],
-        root,
-    )
-    audit_payload: dict[str, Any] = {}
-    try:
-        audit_payload = json.loads(audit_result.stdout)
-    except json.JSONDecodeError:
-        pass
-    audit_ok = (
-        audit_result.returncode == 0
-        and audit_payload.get("project", {}).get("stack") == "wechat-native"
-        and audit_payload.get("summary", {}).get("P0", 0) >= 1
-    )
-    checks.append(
-        _check(
-            "静态审查冒烟",
-            audit_ok,
-            f"stack={audit_payload.get('project', {}).get('stack')} P0={audit_payload.get('summary', {}).get('P0')}",
+    # 7. 静态审查冒烟 + 报告契约/对比冒烟
+    with tempfile.TemporaryDirectory(prefix="mpux-review-") as temp_dir:
+        review_path = Path(temp_dir) / "review.json"
+        audit_result = _run(
+            [
+                sys.executable,
+                str(scripts / "audit_mini_program.py"),
+                "--path",
+                "tests/fixtures/wechat-native",
+                "--format",
+                "json",
+                "--output",
+                str(review_path),
+            ],
+            root,
         )
-    )
+        audit_payload: dict[str, Any] = {}
+        try:
+            audit_payload = json.loads(audit_result.stdout)
+        except json.JSONDecodeError:
+            pass
+        audit_ok = (
+            audit_result.returncode == 0
+            and audit_payload.get("project", {}).get("stack") == "wechat-native"
+            and audit_payload.get("summary", {}).get("P0", 0) >= 1
+        )
+        checks.append(
+            _check(
+                "静态审查冒烟",
+                audit_ok,
+                f"stack={audit_payload.get('project', {}).get('stack')} P0={audit_payload.get('summary', {}).get('P0')}",
+            )
+        )
+        compare_result = _run(
+            [
+                sys.executable,
+                str(scripts / "review_compare.py"),
+                str(review_path),
+                str(review_path),
+                "--json",
+            ],
+            root,
+        )
+        compare_payload: dict[str, Any] = {}
+        try:
+            compare_payload = json.loads(compare_result.stdout)
+        except json.JSONDecodeError:
+            pass
+        compare_summary = compare_payload.get("summary", {})
+        compare_ok = (
+            compare_result.returncode == 0
+            and compare_summary.get("new") == 0
+            and compare_summary.get("resolved") == 0
+            and compare_summary.get("remaining", 0) >= 1
+        )
+        checks.append(
+            _check(
+                "审查对比冒烟",
+                compare_ok,
+                f"new={compare_summary.get('new')} resolved={compare_summary.get('resolved')} remaining={compare_summary.get('remaining')}",
+            )
+        )
 
     # 8. 已保存的开发者工具模拟器证据（不重新启动 DevTools）
     runtime_ok, runtime_detail = _runtime_evidence(root)

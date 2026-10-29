@@ -29,15 +29,35 @@ class AuditTests(unittest.TestCase):
         self.assertGreaterEqual(report["summary"]["P0"], 1)
         self.assertGreaterEqual(report["summary"]["P1"], 1)
         titles = {finding["title"] for finding in report["findings"]}
-        self.assertIn("声明的页面缺少模板文件", titles)
+        self.assertIn("声明的页面缺少模板文件：pages/detail/index", titles)
         self.assertIn("WXML 使用浏览器 HTML 标签", titles)
         self.assertIn("WXML 使用浏览器/Vue 事件语法", titles)
         self.assertIn("固定底部元素未发现安全区处理", titles)
         self.assertIn("检测到浏览器 DOM/BOM API", titles)
         self.assertIn("启用 customTabBar 但未找到 custom-tab-bar 组件", titles)
-        self.assertIn("未发现以下状态线索：加载状态、空状态、错误/重试状态", titles)
+        self.assertIn("未发现加载状态线索", titles)
+        self.assertIn("未发现空状态线索", titles)
+        self.assertIn("未发现错误/重试状态线索", titles)
         self.assertIn("存在过小字号", titles)
         self.assertIn("样式中存在设计系统未登记的硬编码颜色", titles)
+
+    def test_fingerprints_are_stable_between_runs(self) -> None:
+        first = audit_project(FIXTURES / "wechat-native")
+        second = audit_project(FIXTURES / "wechat-native")
+        self.assertEqual(
+            {finding["fingerprint"] for finding in first["findings"]},
+            {finding["fingerprint"] for finding in second["findings"]},
+        )
+        self.assertEqual(len({finding["fingerprint"] for finding in first["findings"]}), len(first["findings"]))
+
+    def test_check_ids_match_executed_checks(self) -> None:
+        report = audit_project(FIXTURES / "wechat-native")
+        executed = {item["id"] for item in report["executed_checks"]}
+        for finding in report["findings"]:
+            self.assertIn(finding["check_id"], executed)
+        self.assertEqual(report["schema_version"], "1.1.0")
+        self.assertTrue(report["scope"]["source_files"])
+        self.assertEqual(report["scope"]["files_scanned"], len(report["scope"]["source_files"]))
 
     def test_report_environment_and_coverage(self) -> None:
         report = audit_project(FIXTURES / "wechat-native")

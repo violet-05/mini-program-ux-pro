@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -18,6 +19,7 @@ from pathlib import Path
 from typing import Any, Iterator
 
 from mpux_core import configure_utf8_stdio
+from review_contract import SCHEMA_VERSION, ReportError, finding_fingerprint, validate_report
 
 VERSION = "1.0.0"
 SKIP_DIRS = {
@@ -176,9 +178,53 @@ def _strip_json_comments(text: str) -> str:
     return _strip_trailing_commas("".join(result))
 
 
-def _load_jsonc(path: Path) -> Any:
-    text = path.read_text(encoding="utf-8-sig", errors="replace")
-    return json.loads(_strip_json_comments(text))
+def _load_jsonc(path: Path) -> dict[str, Any]:
+    text = _read_text(path)
+    try:
+        payload = json.loads(_strip_json_comments(text))
+    except (ValueError, RecursionError) as exc:
+        raise AuditError(f"配置无法解析：{path}；{exc}") from exc
+    if not isinstance(payload, dict):
+        raise AuditError(f"配置根节点必须是 JSON 对象：{path}")
+    return payload
+
+
+def _input_exists(path: Path) -> bool:
+    try:
+        path.stat()
+    except FileNotFoundError:
+        return False
+    except (OSError, ValueError) as exc:
+        raise AuditError(f"无法检查输入路径：{path}；{exc}") from exc
+    return True
+
+
+def _inside_project(root: Path, path: Path, label: str) -> Path:
+    try:
+        resolved = path.resolve()
+        resolved.relative_to(root.resolve())
+    except (OSError, ValueError, RuntimeError) as exc:
+        raise AuditError(f"{label} 必须是可访问的项目内路径：{path}；{exc}") from exc
+    return resolved
+
+
+def _input_route(
+    value: Any, root: Path, base: Path, label: str, *, allow_root: bool = False
+) -> str:
+    if not isinstance(value, str):
+        raise AuditError(f"{label} 必须是字符串：{base}；收到 {value!r}")
+    route = value.replace("\\", "/")
+    if (
+        (not route.strip() and not (allow_root and route == ""))
+        or route.startswith("/")
+        or re.match(r"^[A-Za-z]:", route)
+        or ".." in route.split("/")
+        or "\x00" in route
+        or (not allow_root and all(part in {"", "."} for part in route.split("/")))
+    ):
+        raise AuditError(f"{label} 必须是项目内相对路径，不能使用绝对路径或 ..：{base}；{value!r}")
+    _inside_project(root, base / route, label)
+    return route.rstrip("/")
 
 
 def _line_number(text: str, position: int) -> int:
@@ -191,12 +237,23 @@ def _excerpt(line: str, limit: int = 180) -> str:
 
 
 def _walk_project_files(root: Path) -> Iterator[Path]:
-    for directory, subdirectories, names in os.walk(root):
-        subdirectories[:] = sorted(name for name in subdirectories if name not in SKIP_DIRS)
-        for name in sorted(names):
-            path = Path(directory) / name
-            if not path.is_symlink() and path.is_file():
-                yield path
+    from stat import S_ISREG
+
+    def onerror(exc: OSError) -> None:
+        raise AuditError(f"无法遍历项目目录：{exc.filename or root}；{exc}") from exc
+
+    current = root
+    try:
+        for directory, subdirectories, names in os.walk(root, onerror=onerror):
+            current = Path(directory)
+            _inside_project(root, current, "扫描目录")
+            subdirectories[:] = sorted(name for name in subdirectories if name not in SKIP_DIRS)
+            for name in sorted(names):
+                current = Path(directory) / name
+                if S_ISREG(current.lstat().st_mode):
+                    yield current
+    except (OSError, ValueError) as exc:
+        raise AuditError(f"无法扫描输入文件：{current}；{exc}") from exc
 
 
 def _find_files(root: Path) -> list[Path]:
@@ -207,8 +264,8 @@ def _find_files(root: Path) -> list[Path]:
         try:
             if path.stat().st_size > 800_000:
                 continue
-        except OSError:
-            continue
+        except (OSError, ValueError) as exc:
+            raise AuditError(f"无法读取文件状态：{path}；{exc}") from exc
         files.append(path)
         if len(files) > 4000:
             raise AuditError("待审查源码超过 4000 个文件；请用 --path 指向具体小程序目录，避免不完整审查。")
@@ -217,51 +274,66 @@ def _find_files(root: Path) -> list[Path]:
 
 def _read_text(path: Path) -> str:
     try:
-        return path.read_text(encoding="utf-8-sig", errors="replace")
-    except OSError:
-        return ""
+        return path.read_text(encoding="utf-8-sig", errors="strict")
+    except (OSError, ValueError) as exc:
+        raise AuditError(f"无法读取 UTF-8 文本：{path}；{exc}") from exc
 
 
 def _package_dependencies(root: Path) -> set[str]:
     package_path = root / "package.json"
-    if not package_path.exists():
+    if not _input_exists(package_path):
         return set()
-    try:
-        payload = json.loads(package_path.read_text(encoding="utf-8-sig", errors="replace"))
-    except json.JSONDecodeError:
-        return set()
+    _inside_project(root, package_path, "package.json")
+    payload = _load_jsonc(package_path)
     dependencies: set[str] = set()
     for key in ("dependencies", "devDependencies", "peerDependencies"):
-        section = payload.get(key)
-        if isinstance(section, dict):
-            dependencies.update(section.keys())
+        if key not in payload:
+            continue
+        section = payload[key]
+        if not isinstance(section, dict) or not all(
+            isinstance(value, str) for value in section.values()
+        ):
+            raise AuditError(f"package.json 的 {key} 必须是依赖名到版本字符串的对象：{package_path}")
+        dependencies.update(section.keys())
     return dependencies
 
 
 def _detect_stack(root: Path) -> tuple[str, str, Path]:
+    from stat import S_ISDIR
+
     dependencies = _package_dependencies(root)
+    project_path = root / "project.config.json"
+    has_project_config = _input_exists(project_path)
+    app_root = root
+    if has_project_config:
+        _inside_project(root, project_path, "project.config.json")
+        project_config = _load_jsonc(project_path)
+        if "miniprogramRoot" in project_config:
+            route = _input_route(
+                project_config["miniprogramRoot"], root, root,
+                f"{project_path} 的 miniprogramRoot", allow_root=True,
+            )
+            app_root = _inside_project(root, root / route, "miniprogramRoot")
+            try:
+                is_directory = S_ISDIR(app_root.stat().st_mode)
+            except (OSError, ValueError) as exc:
+                raise AuditError(f"miniprogramRoot 目录无法读取：{app_root}；{exc}") from exc
+            if not is_directory:
+                raise AuditError(f"miniprogramRoot 必须是项目内目录：{app_root}")
     if "@tarojs/taro" in dependencies or any(item.startswith("@tarojs/") for item in dependencies):
         return "taro", "package.json 检测到 @tarojs/* 依赖", root
     if "@dcloudio/uni-app" in dependencies or any(
         item.startswith("@dcloudio/") for item in dependencies
     ):
         return "uni-app", "package.json 检测到 @dcloudio/* 依赖", root
-    if (root / "project.config.json").exists():
-        try:
-            project_config = _load_jsonc(root / "project.config.json")
-        except json.JSONDecodeError:
-            project_config = {}
-        app_root = root
-        miniprogram_root = project_config.get("miniprogramRoot") if isinstance(project_config, dict) else None
-        if miniprogram_root:
-            app_root = (root / str(miniprogram_root)).resolve()
-        if (app_root / "app.json").exists() or (root / "app.json").exists():
+    if has_project_config:
+        if _input_exists(app_root / "app.json") or _input_exists(root / "app.json"):
             return "wechat-native", "检测到 project.config.json 与 app.json（含 miniprogramRoot）", app_root
-    if (root / "app.json").exists():
+    if _input_exists(root / "app.json"):
         return "wechat-native", "检测到 app.json", root
-    if (root / "pages.json").exists() or (root / "src" / "pages.json").exists():
-        return "uni-app", "检测到 pages.json", root / "src" if (root / "src" / "pages.json").exists() else root
-    if (root / "app.config.ts").exists() or (root / "app.config.js").exists():
+    if _input_exists(root / "pages.json") or _input_exists(root / "src" / "pages.json"):
+        return "uni-app", "检测到 pages.json", root / "src" if _input_exists(root / "src" / "pages.json") else root
+    if _input_exists(root / "app.config.ts") or _input_exists(root / "app.config.js"):
         return "taro", "检测到 app.config.*", root
     if any(path.suffix.casefold() == ".html" for path in _walk_project_files(root)):
         return "browser-prototype", "仅检测到浏览器 HTML，未发现小程序工程配置", root
@@ -272,7 +344,8 @@ def _find_config_path(root: Path, app_root: Path, names: list[str]) -> Path | No
     for base in (app_root, root, root / "src"):
         for name in names:
             candidate = base / name
-            if candidate.exists():
+            if _input_exists(candidate):
+                _inside_project(root, candidate, "配置文件")
                 return candidate
     return None
 
@@ -281,46 +354,55 @@ def _extract_pages(project: dict[str, Any]) -> tuple[list[str], list[dict[str, A
     stack = project["stack"]
     root: Path = project["root"]
     app_root: Path = project["app_root"]
-    config = project.get("app_config") or {}
+    config = project.get("app_config")
+    config_path: Path | None = project.get("app_config_path")
+    label = str(config_path or app_root)
     pages: list[str] = []
     evidence: list[dict[str, Any]] = []
+
+    def page_list(raw_pages: Any, field: str, package_root: str = "") -> None:
+        if not isinstance(raw_pages, list):
+            raise AuditError(f"{label} 的 {field} 必须是数组")
+        for index, item in enumerate(raw_pages):
+            value = item.get("path") if isinstance(item, dict) else item
+            route = _input_route(
+                value, root, app_root / package_root, f"{label} 的 {field}[{index}]",
+            )
+            pages.append(f"{package_root}/{route}" if package_root else route)
+
     if stack in {"wechat-native", "uni-app"}:
-        raw_pages = config.get("pages") if isinstance(config, dict) else None
-        if isinstance(raw_pages, list):
-            for item in raw_pages:
-                if isinstance(item, str):
-                    pages.append(item.lstrip("/"))
-                elif isinstance(item, dict) and isinstance(item.get("path"), str):
-                    pages.append(item["path"].lstrip("/"))
-        subpackages = None
-        if isinstance(config, dict):
-            subpackages = config.get("subPackages") or config.get("subpackages")
-        if isinstance(subpackages, list):
-            for package in subpackages:
+        if config is None and config_path is None:
+            config = {}
+        if not isinstance(config, dict):
+            raise AuditError(f"配置根节点必须是 JSON 对象：{label}")
+        page_list(config.get("pages", []), "pages")
+        for key in ("subPackages", "subpackages"):
+            if key not in config:
+                continue
+            subpackages = config[key]
+            if not isinstance(subpackages, list):
+                raise AuditError(f"{label} 的 {key} 必须是数组")
+            for index, package in enumerate(subpackages):
+                field = f"{key}[{index}]"
                 if not isinstance(package, dict):
-                    continue
-                package_root = str(package.get("root", "")).rstrip("/")
-                for item in package.get("pages", []) or []:
-                    if isinstance(item, str):
-                        pages.append(f"{package_root}/{item}".lstrip("/"))
-                    elif isinstance(item, dict) and isinstance(item.get("path"), str):
-                        pages.append(f"{package_root}/{item['path']}".lstrip("/"))
-        config_path: Path | None = project.get("app_config_path")
+                    raise AuditError(f"{label} 的 {field} 必须是对象")
+                package_root = _input_route(
+                    package.get("root"), root, app_root, f"{label} 的 {field}.root",
+                )
+                page_list(package.get("pages"), f"{field}.pages", package_root)
         if config_path:
-            evidence.append({"file": str(config_path.relative_to(root)).replace("\\", "/"), "line": 1})
+            config_file = _inside_project(root, config_path, "配置文件")
+            evidence.append({"file": str(config_file.relative_to(root.resolve())).replace("\\", "/"), "line": 1})
     elif stack == "taro":
-        config_path = project.get("app_config_path")
         if config_path:
+            config_file = _inside_project(root, config_path, "配置文件")
             text = _read_text(config_path)
             match = re.search(r"pages\s*:\s*\[(.*?)\]", text, re.DOTALL)
             if match:
-                pages = [
-                    value.strip().strip("'\"")
-                    for value in re.findall(r"['\"]([^'\"]+)['\"]", match.group(1))
-                ]
+                page_list(re.findall(r"['\"]([^'\"]+)['\"]", match.group(1)), "pages")
                 evidence.append(
                     {
-                        "file": str(config_path.relative_to(root)).replace("\\", "/"),
+                        "file": str(config_file.relative_to(root.resolve())).replace("\\", "/"),
                         "line": _line_number(text, match.start()),
                     }
                 )
@@ -331,9 +413,11 @@ def _page_candidates(project: dict[str, Any], page: str) -> list[Path]:
     stack = project["stack"]
     root: Path = project["root"]
     app_root: Path = project["app_root"]
+    page = _input_route(page, root, app_root, "页面路径")
     bases: list[Path] = []
     for candidate in (app_root, root, root / "src", root / "miniprogram"):
-        if candidate not in bases and candidate.exists():
+        if candidate not in bases and _input_exists(candidate):
+            _inside_project(root, candidate, "页面目录")
             bases.append(candidate)
     if stack == "wechat-native":
         extensions = [".wxml", ".js", ".ts", ".json", ".wxss", ".wxs"]
@@ -347,6 +431,7 @@ def _page_candidates(project: dict[str, Any], page: str) -> list[Path]:
     for base in bases:
         for extension in extensions:
             candidate = base / f"{page}{extension}"
+            _inside_project(root, candidate, "页面文件")
             if candidate not in paths:
                 paths.append(candidate)
     return paths
@@ -355,10 +440,16 @@ def _page_candidates(project: dict[str, Any], page: str) -> list[Path]:
 def _load_project(
     path: Path, design_system_path: Path | None = None
 ) -> dict[str, Any]:
-    root = path.resolve()
-    if not root.exists():
-        raise AuditError(f"项目路径不存在：{path}")
-    if not root.is_dir():
+    from stat import S_ISDIR
+
+    try:
+        root = path.resolve()
+        is_directory = S_ISDIR(root.stat().st_mode)
+    except FileNotFoundError as exc:
+        raise AuditError(f"项目路径不存在：{path}") from exc
+    except (OSError, ValueError, RuntimeError) as exc:
+        raise AuditError(f"项目路径无法读取：{path}；{exc}") from exc
+    if not is_directory:
         raise AuditError(f"项目路径不是目录：{path}")
     stack, reason, app_root = _detect_stack(root)
     project: dict[str, Any] = {
@@ -374,10 +465,7 @@ def _load_project(
     config_path = _find_config_path(root, app_root, config_names)
     project["app_config_path"] = config_path
     if config_path and config_path.suffix == ".json":
-        try:
-            project["app_config"] = _load_jsonc(config_path)
-        except json.JSONDecodeError as exc:
-            project["config_error"] = f"{config_path.name} 无法解析：{exc}"
+        project["app_config"] = _load_jsonc(config_path)
     elif config_path:
         project["app_config"] = {}
     pages, page_evidence = _extract_pages(project)
@@ -385,10 +473,13 @@ def _load_project(
     project["page_evidence"] = page_evidence
     project["page_files"] = {page: _page_candidates(project, page) for page in pages}
     project["existing_page_files"] = {
-        page: [candidate for candidate in candidates if candidate.exists()]
+        page: [candidate for candidate in candidates if _input_exists(candidate)]
         for page, candidates in project["page_files"].items()
     }
-    project["design_system"] = _find_design_system(root, design_system_path)
+    try:
+        project["design_system"] = _find_design_system(root, design_system_path)
+    except (OSError, ValueError) as exc:
+        raise AuditError(f"设计系统路径无法读取：{design_system_path or root}；{exc}") from exc
     if design_system_path is not None and project["design_system"] is None:
         raise AuditError(
             f"指定设计系统不存在或不是有效 MASTER.json：{design_system_path}"
@@ -470,10 +561,7 @@ def _config_navigation_custom(project: dict[str, Any]) -> tuple[bool, list[dict[
         for page_file in files:
             if page_file.suffix != ".json":
                 continue
-            try:
-                page_config = _load_jsonc(page_file)
-            except json.JSONDecodeError:
-                continue
+            page_config = _load_jsonc(page_file)
             style = page_config.get("style") if isinstance(page_config, dict) else None
             if isinstance(page_config, dict) and (
                 page_config.get("navigationStyle") == "custom"
@@ -522,7 +610,7 @@ def _finding(
 
 def _add(
     findings: list[dict[str, Any]],
-    seen: set[tuple[str, str, str]],
+    seen: set[tuple[str, str, tuple[str, ...]]],
     *,
     severity: str,
     category: str,
@@ -534,7 +622,7 @@ def _add(
     verification: str = "automated",
     confidence: str = "high",
 ) -> None:
-    key = (severity, category, title)
+    key = (category, title, tuple(sorted({item["file"] for item in evidence if item.get("file")})))
     if key in seen:
         return
     seen.add(key)
@@ -578,24 +666,11 @@ def _extract_style_blocks(path: Path, text: str) -> list[tuple[str, str, int]]:
 
 
 def _check_project_structure(
-    project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, str]]
+    project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, tuple[str, ...]]]
 ) -> int:
     count = 0
     if project["stack"] in {"browser-prototype", "unknown"}:
         return 0
-    if project.get("config_error"):
-        _add(
-            findings,
-            seen,
-            severity="P1",
-            category="工程结构",
-            title="应用配置无法解析",
-            evidence=[{"file": _relative(project, project.get("app_config_path")), "line": 1, "excerpt": project["config_error"]}],
-            why="无法读取 app.json/pages.json 会导致页面、导航和审查范围不可靠。",
-            recommendation="修复 JSON/JSONC 语法后重新运行静态审查。",
-            rule_ids=["mp-route-stack"],
-        )
-        count += 1
     if not project.get("pages"):
         _add(
             findings,
@@ -603,7 +678,7 @@ def _check_project_structure(
             severity="P1",
             category="工程结构",
             title="未发现页面声明",
-            evidence=[{"file": _relative(project, project.get("app_config_path")), "line": 1}],
+            evidence=[{"file": _relative(project, project.get("app_config_path")) or ".", "line": 1}],
             why="静态审查无法确认页面范围，也不能验证是否为可运行的小程序。",
             recommendation="确认项目路径或检查 app.json/pages.json 的 pages 配置。",
             rule_ids=["mp-route-stack"],
@@ -620,7 +695,7 @@ def _check_project_structure(
                 seen,
                 severity="P0",
                 category="工程结构",
-                title="声明的页面缺少模板文件",
+                title=f"声明的页面缺少模板文件：{page}",
                 evidence=[{"file": _relative(project, project.get("app_config_path")), "line": 1, "excerpt": f"已声明页面：{page}"}],
                 why=f"路由指向不存在的页面模板，用户进入后会失败。目标技术栈：{STACK_LABELS.get(stack, stack)}。",
                 recommendation="补齐页面模板或从配置中移除该路由；修复后重新编译。",
@@ -641,7 +716,7 @@ def _check_project_structure(
                     seen,
                     severity="P1",
                     category="工程结构",
-                    title="页面缺少逻辑文件",
+                    title=f"页面缺少逻辑文件：{page}",
                     evidence=[{"file": _relative(project, project.get("app_config_path")), "line": 1, "excerpt": page}],
                     why="小程序页面通常需要 JS/TS 逻辑文件；仅有模板无法完成数据与事件。",
                     recommendation="补齐页面逻辑或确认是否为静态占位页，并在配置中移除不可用路由。",
@@ -654,7 +729,7 @@ def _check_project_structure(
                     seen,
                     severity="P3",
                     category="工程结构",
-                    title="页面缺少独立 JSON 配置",
+                    title=f"页面缺少独立 JSON 配置：{page}",
                     evidence=[{"file": _relative(project, project.get("app_config_path")), "line": 1, "excerpt": page}],
                     why="页面标题和局部导航配置可能缺失；并非所有页面都必须有 JSON，但应确认是否使用全局配置。",
                     recommendation="确认标题、导航和组件配置；需要时补充页面 JSON。",
@@ -666,7 +741,7 @@ def _check_project_structure(
     return count
 
 
-def _check_tabbar(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, str]]) -> int:
+def _check_tabbar(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, tuple[str, ...]]]) -> int:
     config = project.get("app_config") or {}
     if not isinstance(config, dict):
         return 0
@@ -774,7 +849,7 @@ def _check_tabbar(project: dict[str, Any], findings: list[dict[str, Any]], seen:
     return count
 
 
-def _check_navigation(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, str]]) -> int:
+def _check_navigation(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, tuple[str, ...]]]) -> int:
     custom, evidence = _config_navigation_custom(project)
     if not custom:
         return 0
@@ -805,7 +880,7 @@ def _check_navigation(project: dict[str, Any], findings: list[dict[str, Any]], s
 
 
 def _check_dom_and_apis(
-    project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, str]]
+    project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, tuple[str, ...]]]
 ) -> int:
     count = 0
     stack = project["stack"]
@@ -952,7 +1027,7 @@ def _check_dom_and_apis(
 
 
 def _check_safe_area_and_css(
-    project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, str]]
+    project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, tuple[str, ...]]]
 ) -> tuple[int, int, int]:
     safe_area_count = 0
     touch_count = 0
@@ -1060,7 +1135,7 @@ def _styles(project: dict[str, Any]) -> list[tuple[str, str, int]]:
     return blocks
 
 
-def _check_ui_states(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, str]]) -> int:
+def _check_ui_states(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, tuple[str, ...]]]) -> int:
     texts = _page_source_texts(project)
     if not texts:
         return 0
@@ -1070,32 +1145,26 @@ def _check_ui_states(project: dict[str, Any], findings: list[dict[str, Any]], se
         "空状态": ("empty", "空状态", "暂无", "还没有"),
         "错误/重试状态": ("error", "错误", "失败", "重试", "重试"),
     }
-    missing = [
-        (label, terms)
-        for label, terms in categories.items()
-        if not any(term in combined for term in terms)
-    ]
-    if not missing:
-        return 0
-    labels = "、".join(label for label, _ in missing)
-    first_file, first_text = texts[0]
-    _add(
-        findings,
-        seen,
-        severity="P2",
-        category="交互状态",
-        title=f"未发现以下状态线索：{labels}",
-        evidence=[{"file": first_file, "line": 1}],
-        why="静态扫描没有找到这些状态的关键词或组件线索；只实现成功路径会在慢网、空数据或失败时留下空白/死路。",
-        recommendation="逐页补齐加载、空、错误与重试状态；如果使用共享组件，请确保页面确实引用并验证。",
-        rule_ids=["ux-loading-states", "ux-empty-states", "ux-error-states"],
-        verification="rule-assisted",
-        confidence="low",
-    )
-    return 1
+    missing = [label for label, terms in categories.items() if not any(term in combined for term in terms)]
+    rules = {"加载状态": "ux-loading-states", "空状态": "ux-empty-states", "错误/重试状态": "ux-error-states"}
+    for label in missing:
+        _add(
+            findings,
+            seen,
+            severity="P2",
+            category="交互状态",
+            title=f"未发现{label}线索",
+            evidence=[{"file": texts[0][0], "line": 1}],
+            why="静态扫描没有找到该状态的关键词或组件线索；只实现成功路径会在慢网、空数据或失败时留下空白/死路。",
+            recommendation="逐页补齐加载、空、错误与重试状态；如果使用共享组件，请确保页面确实引用并验证。",
+            rule_ids=[rules[label]],
+            verification="rule-assisted",
+            confidence="low",
+        )
+    return len(missing)
 
 
-def _check_images(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, str]]) -> int:
+def _check_images(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, tuple[str, ...]]]) -> int:
     count = 0
     for path in project["files"]:
         if path.suffix.casefold() not in {".wxml", ".vue", ".nvue", ".tsx", ".jsx"}:
@@ -1125,7 +1194,7 @@ def _check_images(project: dict[str, Any], findings: list[dict[str, Any]], seen:
     return count
 
 
-def _check_privacy(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, str]]) -> int:
+def _check_privacy(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, tuple[str, ...]]]) -> int:
     all_code = "\n".join(
         _read_text(path) for path in project["files"] if path.suffix.casefold() in CODE_EXTENSIONS
     )
@@ -1173,7 +1242,7 @@ def _check_privacy(project: dict[str, Any], findings: list[dict[str, Any]], seen
     return 1
 
 
-def _check_tokens(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, str]]) -> int:
+def _check_tokens(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, tuple[str, ...]]]) -> int:
     color_positions: list[tuple[str, int, str]] = []
     unique_colors: set[str] = set()
     for path in project["files"]:
@@ -1230,7 +1299,7 @@ def _check_tokens(project: dict[str, Any], findings: list[dict[str, Any]], seen:
     return 0
 
 
-def _check_wxml_keys(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, str]]) -> int:
+def _check_wxml_keys(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, tuple[str, ...]]]) -> int:
     count = 0
     for path in project["files"]:
         if path.suffix.casefold() != ".wxml":
@@ -1261,7 +1330,7 @@ def _check_wxml_keys(project: dict[str, Any], findings: list[dict[str, Any]], se
     return count
 
 
-def _check_misc(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, str]]) -> tuple[int, int]:
+def _check_misc(project: dict[str, Any], findings: list[dict[str, Any]], seen: set[tuple[str, str, tuple[str, ...]]]) -> tuple[int, int]:
     important_count = 0
     infinite_count = 0
     example_file = ""
@@ -1315,26 +1384,28 @@ def audit_project(
     global _PROJECT
     _PROJECT = project
     findings: list[dict[str, Any]] = []
-    seen: set[tuple[str, str, str]] = set()
+    seen: set[tuple[str, str, tuple[str, ...]]] = set()
     check_counts: dict[str, int] = {}
 
     def run(check_id: str, function, *args) -> Any:
+        start = len(findings)
         result = function(*args)
-        if isinstance(result, tuple):
-            count = sum(result)
-        else:
-            count = result
-        check_counts[check_id] = count
+        for finding in findings[start:]:
+            finding["check_id"] = check_id
+        check_counts[check_id] = len(findings) - start
         return result
 
     run("project-structure", _check_project_structure, project, findings, seen)
     run("tabbar-config", _check_tabbar, project, findings, seen)
     run("custom-navigation", _check_navigation, project, findings, seen)
     run("dom-browser-api", _check_dom_and_apis, project, findings, seen)
-    safe_area_count, touch_count, font_count = _check_safe_area_and_css(project, findings, seen)
-    check_counts["safe-area"] = safe_area_count
-    check_counts["touch-target-css"] = touch_count
-    check_counts["font-size-css"] = font_count
+    start = len(findings)
+    _check_safe_area_and_css(project, findings, seen)
+    css_checks = {"安全区域": "safe-area", "触摸交互": "touch-target-css", "可读性": "font-size-css"}
+    for finding in findings[start:]:
+        finding["check_id"] = css_checks[finding["category"]]
+    for check_id in css_checks.values():
+        check_counts[check_id] = sum(item["check_id"] == check_id for item in findings[start:])
     run("ui-states", _check_ui_states, project, findings, seen)
     run("images", _check_images, project, findings, seen)
     run("privacy", _check_privacy, project, findings, seen)
@@ -1383,10 +1454,12 @@ def audit_project(
     )
     for index, finding in enumerate(findings, start=1):
         finding["id"] = f"F-{index:03d}"
+        finding.setdefault("check_id", "environment")
         finding["evidence"] = [
             {**item, "file": item.get("file", "."), "line": item.get("line", 1)}
             for item in finding.get("evidence", [])
         ]
+        finding["fingerprint"] = finding_fingerprint(finding)
 
     summary = {level: 0 for level in ("P0", "P1", "P2", "P3")}
     for finding in findings:
@@ -1398,11 +1471,11 @@ def audit_project(
     )
     design = project.get("design_system")
     report = {
-        "schema_version": "1.0.0",
+        "schema_version": SCHEMA_VERSION,
         "report_type": "static-mini-program-review",
         "generator": {"name": "mini-program-ux-pro", "version": VERSION},
         "project": {
-            "name": project["root"].name,
+            "name": project["root"].name or str(project["root"]),
             "path": str(project["root"]),
             "stack": project["stack"],
             "stack_label": STACK_LABELS.get(project["stack"], project["stack"]),
@@ -1419,6 +1492,13 @@ def audit_project(
         },
         "scope": {
             "files_scanned": len(project["files"]),
+            "source_files": [_relative(project, path) for path in project["files"]],
+            "ruleset": "static-1",
+            "scan_policy": {
+                "max_file_bytes": 800_000,
+                "excluded_directories": sorted(SKIP_DIRS),
+                "extensions": sorted(TEXT_EXTENSIONS),
+            },
             "pages_declared": len(project.get("pages", [])),
             "pages_found": existing_pages,
             "page_paths": list(project.get("pages", [])),
@@ -1429,6 +1509,7 @@ def audit_project(
                     "version": design.get("version"),
                     "schema_version": design.get("schema_version"),
                     "generated_at": design["data"].get("generated_at"),
+                    "fingerprint": hashlib.sha256(json.dumps(sorted(design["tokens"])).encode("utf-8")).hexdigest(),
                 }
                 if design
                 else None
@@ -1460,6 +1541,7 @@ def audit_project(
         },
         "next_steps": _next_steps(findings),
     }
+    validate_report(report)
     return report
 
 
@@ -1613,7 +1695,7 @@ def main(argv: list[str] | None = None) -> int:
             Path(args.path),
             Path(args.design_system) if args.design_system else None,
         )
-    except AuditError as exc:
+    except (AuditError, ReportError) as exc:
         print(f"错误：{exc}", file=sys.stderr)
         return 2
     markdown = format_markdown(report)

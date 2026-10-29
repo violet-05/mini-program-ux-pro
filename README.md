@@ -24,12 +24,22 @@ python mpux.py design --product "音乐播放器小程序" --stack wechat-native
 python mpux.py audit --path "../your-mini-program" --format markdown
 ```
 
+修改前后各保存一份 JSON，再比较新增、修复与遗留：
+
+```bash
+python mpux.py audit --path "../your-mini-program" --json --output review-before.json
+# 修改后
+python mpux.py audit --path "../your-mini-program" --json --output review-after.json
+python mpux.py compare review-before.json review-after.json
+```
+
 | 你现在要做什么 | 入口 |
 | --- | --- |
 | 第一次使用 / 排查安装问题 | `python mpux.py doctor` |
 | 找设计依据 | `python mpux.py search "关键词"` |
 | 建立统一设计系统 | `python mpux.py design --help` |
 | 检查已有页面 | `python mpux.py audit --help` |
+| 比较两次审查结果 | `python mpux.py compare --help` |
 | 接入 AI 编程工具 | [安装指南](docs/installation.md) |
 | 查看完整参数与案例 | [使用指南](docs/usage.md) · [音乐案例](examples/music-mini-program.md) |
 
@@ -59,6 +69,7 @@ MPUX Pro 用原创结构化知识库和本地检索解决这些问题，并提�
 - **冲突检查**：指定风格与产品不一致、配色兼容性、密度冲突、对比度不足等。
 - **反模板化**：不同产品有不同首页结构、页面优先级与设计理由。
 - **静态审查**：识别技术栈、页面结构、浏览器标签/API、TabBar、自定义导航、安全区、触摸目标、字号、状态、图片、隐私和 token 一致性。
+- **审查前后对比**：两次 JSON 报告按稳定问题指纹匹配，区分新增、已确认修复、遗留和无法确认；未执行的检查或缩小扫描范围不会被算作修复。
 - **明确的验证边界**：静态审查、浏览器、微信开发者工具模拟器、真机分开记录；未执行不算通过。
 - **可选的运行时验收**：提供 CLI/automator 适配器与真实小程序示例，可截图并自动验证交互，但只限开发者工具模拟器。
 - **核心零第三方依赖**：Python 标准库；不联网；不需要 AI API Key。可选的 DevTools 运行时验收单独使用 Node/npm 开发依赖。
@@ -188,6 +199,14 @@ python scripts/audit_mini_program.py --path . --format markdown
 python scripts/audit_mini_program.py --path . --fail-on P1
 ```
 
+修改后比较两份报告：
+
+```bash
+python mpux.py compare review-before.json review-after.json --fail-on-new P1
+```
+
+`compare` 输出 `new`、`new_unverified`、`resolved`、`unconfirmed`、`remaining` 五类。只有本次确实执行了同一检查、且相关文件仍在扫描范围内时才确认修复；否则标记为“无法确认”。`--fail-on-new` 只对已确认的新增问题生效。
+
 ### 4. 验证
 
 使用者检查安装：
@@ -288,6 +307,7 @@ python scripts/devtools_adapter.py --cli "<cli.bat 的绝对路径>" run --proje
 - 中文检索不是语义向量搜索；
 - 微信平台能力随基础库/框架版本变化，需看 `verification_status`；
 - 静态审查可能漏报/误报；
+- 前后对比只比较静态规则结果与扫描范围，不能替代人工确认、运行时或真机验收；1.0.0 版审查报告需要重新生成后才能与当前版本对比；
 - 未内置视觉模型；提供独立的请求/响应契约与不可用适配器，不调用远程服务；
 - 微信开发者工具自动化只覆盖模拟器，不包含 iOS/Android 真机；模拟器截图不能替代真机；
 - 可选运行时验收需要 Node.js、npm 依赖和用户手动开启服务端口；
@@ -298,7 +318,7 @@ python scripts/devtools_adapter.py --cli "<cli.bat 的绝对路径>" run --proje
 
 ```text
 .
-├── mpux.py                  # 统一 CLI：doctor / search / design / audit / install
+├── mpux.py                  # 统一 CLI：doctor / search / design / audit / compare / install
 ├── SKILL.md                 # AI 工作流入口与执行原则
 ├── data/                    # 原创知识库（产品/风格/配色/布局/规则/技术栈）
 ├── references/              # 设计/平台参考

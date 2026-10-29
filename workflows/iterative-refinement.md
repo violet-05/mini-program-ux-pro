@@ -53,9 +53,10 @@ python scripts/audit_mini_program.py --path . --format json --output review-base
 
 ```bash
 python scripts/audit_mini_program.py --path . --format json --output review-round1.json
+python mpux.py compare review-baseline.json review-round1.json
 ```
 
-比较基线与本轮问题。明确哪些自动问题消失、哪些仍需人工验证。
+对比基线与本轮问题。只有 `resolved` 是已确认消失的静态问题；`unconfirmed` 需要检查是否漏跑检查或缩小了扫描范围，`new_unverified` 不能直接算作本轮引入的回归。其余仍需人工/运行时验证。
 
 ## 第 2 轮：P2
 

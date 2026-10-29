@@ -55,6 +55,8 @@ $env:PYTHONIOENCODING = "utf-8"
 
 审查器会跳过 `.claude`、`.qoder`、`.cursor`、`.codex`、`node_modules` 与构建产物，避免把安装的 Skill 或依赖误当成用户源码。超过 4000 个可审查文件时会中止并提示缩小 `--path`，不会悄悄输出截断报告。
 
+审查要求源码是 UTF-8，且 `package.json`、`app.json`/`pages.json`、页面路径合法。遇到不可读文件、非 UTF-8 编码、配置根节点不是对象、绝对路径或 `..` 页面路径时会直接报错退出，而不是把文件当空、产出误导性的“通过”报告。按错误提示修正后重新运行即可。
+
 ## 检索没有结果
 
 - 检查查询是否为空/全是标点；
@@ -180,6 +182,23 @@ python scripts/audit_mini_program.py --path ./miniprogram --design-system ./desi
 - 请结合微信开发者工具和真机。
 
 工具不会修改项目。
+
+## 对比结果显示“无法确认”或“新增待确认”
+
+先看条目的 `reason`：
+
+- `本次未执行检查 xxx`：说明同一检查没有在第二次报告里执行，不能算修复；确认两次运行使用相同的命令和参数。
+- `证据文件…不在本次扫描范围`：文件被删除、移动，或落入 `.claude`、`node_modules`、`design-system` 等排除目录，工具不会猜测它是否已修好。
+- `本次扫描比上次多/少 N 个文件`：扫描范围变化。范围缩小会让“修复”不可确认，范围扩大会让新问题无法归因。
+- 两份报告规则集或技术栈不同会直接报错，不能比较。
+
+对比只读取已保存的 JSON，不会重新扫描；修改代码后请先重新生成报告。也可以把报告写入不同文件名，避免覆盖基线：
+
+```bash
+python scripts/audit_mini_program.py --path . --json --output review-before.json
+python scripts/audit_mini_program.py --path . --json --output review-after.json
+python mpux.py compare review-before.json review-after.json
+```
 
 ## JSON 输出解析失败
 
